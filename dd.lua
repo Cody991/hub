@@ -301,7 +301,7 @@ function Library:CreateTab(name)
 		button.BackgroundColor3 = Theme.Accent
 	end
 
-	-- Function: Add a button element to this tab.
+	-- Function: Add a button element
 	function tab:AddButton(text, callback)
 		local btnContainer = Instance.new("Frame")
 		btnContainer.Size = UDim2.new(1, -20, 0, 40)
@@ -355,14 +355,18 @@ function Library:CreateTab(name)
 		end)
 		
 		btn.MouseButton1Down:Connect(function()
-			Tween(btnContainer, {Size = UDim2.new(1, -24, 0, 38)}, 0.08)
-			Tween(btnContainer, {Position = UDim2.new(0, 12, 0, #self.Elements * 45 + 1)}, 0.08)
+			-- Scale down from center instead of moving
+			Tween(btnContainer, {Size = UDim2.new(1, -24, 0, 36)}, 0.08)
+			Tween(btnContainer, {Position = UDim2.new(0, 22, 0, #self.Elements * 45 + 2)}, 0.08)
+			Tween(btn, {TextSize = 13}, 0.08)
 			Tween(glow, {ImageTransparency = 0.7}, 0.08)
 		end)
 		
 		btn.MouseButton1Up:Connect(function()
+			-- Scale back to original size
 			Tween(btnContainer, {Size = UDim2.new(1, -20, 0, 40)}, 0.08)
 			Tween(btnContainer, {Position = UDim2.new(0, 10, 0, #self.Elements * 45)}, 0.08)
+			Tween(btn, {TextSize = 14}, 0.08)
 			Tween(glow, {ImageTransparency = 0.8}, 0.08)
 		end)
 		
