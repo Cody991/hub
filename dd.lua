@@ -88,22 +88,29 @@ function Library.new(title)
 	self.ScreenGui.IgnoreGuiInset = true
 	self.ScreenGui.Parent = game:GetService("CoreGui")
 	
-	-- Main window frame
+	-- Main window frame (adjusted for side tabs)
 	self.MainFrame = Instance.new("Frame")
-	self.MainFrame.Size = UDim2.new(0, 600, 0, 400)
-	self.MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+	self.MainFrame.Size = UDim2.new(0, 700, 0, 400)
+	self.MainFrame.Position = UDim2.new(0.5, -350, 0.5, -200)
 	self.MainFrame.BackgroundColor3 = Theme.Secondary
 	self.MainFrame.BorderSizePixel = 0
 	CreateRound(self.MainFrame, 12)
 	self.MainFrame.Parent = self.ScreenGui
 	
-	-- Title bar
+	-- Title bar with gradient
 	self.TitleBar = Instance.new("Frame")
 	self.TitleBar.Size = UDim2.new(1, 0, 0, 40)
 	self.TitleBar.BackgroundColor3 = Theme.Accent
 	self.TitleBar.BorderSizePixel = 0
 	CreateRound(self.TitleBar, 12)
 	self.TitleBar.Parent = self.MainFrame
+	
+	local gradient = Instance.new("UIGradient")
+	gradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Theme.Accent),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(Theme.Accent.R * 0.7, Theme.Accent.G * 0.7, Theme.Accent.B * 0.7))
+	})
+	gradient.Parent = self.TitleBar
 	
 	local titleLabel = Instance.new("TextLabel")
 	titleLabel.Size = UDim2.new(1, -50, 1, 0)
@@ -129,18 +136,18 @@ function Library.new(title)
 		self.MainFrame.Visible = false
 	end)
 	
-	-- Tab buttons container (for switching between pages)
+	-- Tab buttons container (moved to side)
 	self.TabButtons = Instance.new("Frame")
-	self.TabButtons.Size = UDim2.new(1, 0, 0, 30)
+	self.TabButtons.Size = UDim2.new(0, 150, 1, -40)
 	self.TabButtons.Position = UDim2.new(0, 0, 0, 40)
 	self.TabButtons.BackgroundColor3 = Theme.Secondary
 	self.TabButtons.BorderSizePixel = 0
 	self.TabButtons.Parent = self.MainFrame
 	
-	-- Container for tab pages
+	-- Container for tab pages (adjusted for side tabs)
 	self.TabContainer = Instance.new("Frame")
-	self.TabContainer.Size = UDim2.new(1, 0, 1, -70)
-	self.TabContainer.Position = UDim2.new(0, 0, 0, 70)
+	self.TabContainer.Size = UDim2.new(1, -150, 1, -40)
+	self.TabContainer.Position = UDim2.new(0, 150, 0, 40)
 	self.TabContainer.BackgroundTransparency = 1
 	self.TabContainer.Parent = self.MainFrame
 	
@@ -209,17 +216,35 @@ function Library:CreateTab(name)
 	tab.Container.Parent = self.TabContainer
 	tab.Container.Visible = false
 
-	-- Create a tab button for this tab
+	-- Modified tab button styling
 	local button = Instance.new("TextButton")
-	button.Size = UDim2.new(0, 100, 1, 0)
+	button.Size = UDim2.new(1, -20, 0, 35)
+	button.Position = UDim2.new(0, 10, 0, (#self.Tabs * 40))
 	button.BackgroundColor3 = Theme.Secondary
 	button.BorderSizePixel = 0
 	button.Text = name
 	button.Font = Enum.Font.GothamMedium
-	button.TextSize = 18
+	button.TextSize = 14
 	button.TextColor3 = Theme.TextColor
 	button.Parent = self.TabButtons
 	CreateRound(button, 8)
+
+	-- Add hover effect
+	button.MouseEnter:Connect(function()
+		if button.BackgroundColor3 ~= Theme.Accent then
+			Tween(button, {BackgroundColor3 = Color3.fromRGB(
+				Theme.Secondary.R * 1.2,
+				Theme.Secondary.G * 1.2,
+				Theme.Secondary.B * 1.2
+			)}, 0.2)
+		end
+	end)
+
+	button.MouseLeave:Connect(function()
+		if button.BackgroundColor3 ~= Theme.Accent then
+			Tween(button, {BackgroundColor3 = Theme.Secondary}, 0.2)
+		end
+	end)
 
 	button.MouseButton1Click:Connect(function()
 		-- Hide all tab containers and reset button colors
@@ -243,16 +268,37 @@ function Library:CreateTab(name)
 	-- Function: Add a button element to this tab.
 	function tab:AddButton(text, callback)
 		local btn = Instance.new("TextButton")
-		btn.Size = UDim2.new(1, -20, 0, 40)
-		btn.Position = UDim2.new(0, 10, 0, #self.Elements * 45)
+		btn.Size = UDim2.new(1, -20, 0, 35)
+		btn.Position = UDim2.new(0, 10, 0, #self.Elements * 40)
 		btn.BackgroundColor3 = Theme.Accent
 		btn.BorderSizePixel = 0
 		btn.Text = text
 		btn.Font = Enum.Font.GothamBold
-		btn.TextSize = 20
+		btn.TextSize = 14
 		btn.TextColor3 = Theme.TextColor
-		CreateRound(btn, 8)
+		CreateRound(btn, 6)
 		btn.Parent = tab.Container
+
+		-- Add hover and click effects
+		btn.MouseEnter:Connect(function()
+			Tween(btn, {BackgroundColor3 = Color3.fromRGB(
+				Theme.Accent.R * 0.8,
+				Theme.Accent.G * 0.8,
+				Theme.Accent.B * 0.8
+			)}, 0.2)
+		end)
+
+		btn.MouseLeave:Connect(function()
+			Tween(btn, {BackgroundColor3 = Theme.Accent}, 0.2)
+		end)
+
+		btn.MouseButton1Down:Connect(function()
+			Tween(btn, {Size = UDim2.new(1, -24, 0, 33)}, 0.1)
+		end)
+
+		btn.MouseButton1Up:Connect(function()
+			Tween(btn, {Size = UDim2.new(1, -20, 0, 35)}, 0.1)
+		end)
 
 		btn.MouseButton1Click:Connect(function()
 			pcall(callback)
