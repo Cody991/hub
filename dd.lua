@@ -155,10 +155,6 @@ function Library.new(title)
 	
 	-- Enable dragging of the main window via the title bar
 	local dragging, dragInput, dragStart, startPos
-	local function update(input)
-		local delta = input.Position - dragStart
-		self.MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
 
 	self.TitleBar.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -167,22 +163,18 @@ function Library.new(title)
 			startPos = self.MainFrame.Position
 		end
 	end)
-	
-	self.TitleBar.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement then
-			dragInput = input
-		end
-	end)
-	
-	UserInputService.InputChanged:Connect(function(input)
-		if input == dragInput and dragging then
-			update(input)
-		end
-	end)
-	
-	UserInputService.InputEnded:Connect(function(input)
-		if input == dragInput then
+
+	self.TitleBar.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			dragging = false
+			dragInput = nil
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+			local delta = input.Position - dragStart
+			self.MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 		end
 	end)
 	
