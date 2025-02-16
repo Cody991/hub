@@ -702,6 +702,7 @@ function Library:CreateTab(name)
 		colorDisplay.Position = UDim2.new(0.85, -15, 0.5, -15)
 		colorDisplay.BackgroundColor3 = default or Color3.new(1, 1, 1)
 		colorDisplay.BorderSizePixel = 0
+		colorDisplay.Text = "" -- Removed "button" text
 		CreateRound(colorDisplay, 6)
 		colorDisplay.Parent = colorPickerFrame
 
@@ -714,38 +715,12 @@ function Library:CreateTab(name)
 		pickerGui.Visible = false
 		pickerGui.ZIndex = 100
 		CreateRound(pickerGui, 8)
-		pickerGui.Parent = colorPickerFrame
+		pickerGui.Parent = self.ScreenGui -- Changed parent to ScreenGui to prevent overlap
 
-		-- Color gradient
-		local colorGradient = Instance.new("ImageButton")
-		colorGradient.Size = UDim2.new(0.9, 0, 0.7, 0)
-		colorGradient.Position = UDim2.new(0.05, 0, 0.05, 0)
-		colorGradient.BackgroundColor3 = Color3.new(1, 0, 0)
-		colorGradient.BorderSizePixel = 0
-		colorGradient.ZIndex = 100
-		colorGradient.Image = "rbxassetid://4155801252"
-		CreateRound(colorGradient, 6)
-		colorGradient.Parent = pickerGui
-
-		-- Hue slider
-		local hueSlider = Instance.new("ImageButton")
-		hueSlider.Size = UDim2.new(0.9, 0, 0, 20)
-		hueSlider.Position = UDim2.new(0.05, 0, 0.8, 0)
-		hueSlider.BackgroundColor3 = Color3.new(1, 1, 1)
-		hueSlider.BorderSizePixel = 0
-		hueSlider.ZIndex = 100
-		hueSlider.Image = "rbxassetid://3641079629"
-		CreateRound(hueSlider, 6)
-		hueSlider.Parent = pickerGui
-
-		local hue, saturation, value = 0, 0, 1
-		local selectedColor = default or Color3.new(1, 1, 1)
-
-		local function updateColor()
-			local color = Color3.fromHSV(hue, saturation, value)
-			colorDisplay.BackgroundColor3 = color
-			selectedColor = color
-			pcall(callback, color)
+		-- Add a connection to update picker position when the frame moves
+		local function updatePickerPosition()
+			local framePos = colorDisplay.AbsolutePosition
+			pickerGui.Position = UDim2.new(0, framePos.X + colorDisplay.AbsoluteSize.X + 10, 0, framePos.Y)
 		end
 
 		-- Handle color gradient input
@@ -792,6 +767,16 @@ function Library:CreateTab(name)
 		-- Toggle color picker visibility
 		colorDisplay.MouseButton1Click:Connect(function()
 			pickerGui.Visible = not pickerGui.Visible
+			if pickerGui.Visible then
+				updatePickerPosition()
+			end
+		end)
+
+		-- Update picker position when window is dragged
+		self.MainFrame:GetPropertyChangedSignal("Position"):Connect(function()
+			if pickerGui.Visible then
+				updatePickerPosition()
+			end
 		end)
 
 		-- Close picker when clicking outside
