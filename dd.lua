@@ -200,7 +200,7 @@ function Library.new(title)
 	self.ContentContainer.Size = UDim2.new(1, 0, 1, -40)
 	self.ContentContainer.Position = UDim2.new(0, 0, 0, 40)
 	self.ContentContainer.BackgroundTransparency = 1
-	self.ContentContainer.ClipsDescendants = true  -- This will hide content when minimized
+	self.ContentContainer.ClipsDescendants = true
 	self.ContentContainer.Parent = self.MainFrame
 
 	-- Move TabButtons and TabContainer to be children of ContentContainer
@@ -274,27 +274,30 @@ function Library.new(title)
 	minimizeBtn.MouseButton1Click:Connect(function()
 		self.Minimized = not self.Minimized
 		if self.Minimized then
-			Tween(self.MainFrame, {Size = UDim2.new(0, 700, 0, 40)}, 0.3)
+			-- Hide content first
+			Tween(self.ContentContainer, {Size = UDim2.new(1, 0, 0, 0)}, 0.3)
+			wait(0.1)
+			-- Then minimize the frame
+			Tween(self.MainFrame, {Size = UDim2.new(0, 700, 0, 40)}, 0.2)
 		else
-			Tween(self.MainFrame, {Size = self.OriginalSize}, 0.3)
+			-- Restore frame size first
+			Tween(self.MainFrame, {Size = self.OriginalSize}, 0.2)
+			wait(0.1)
+			-- Then show content
+			Tween(self.ContentContainer, {Size = UDim2.new(1, 0, 1, -40)}, 0.3)
 		end
 	end)
 
 	closeBtn.MouseButton1Click:Connect(function()
-		-- Fade out everything
-		Tween(self.MainFrame, {BackgroundTransparency = 1}, 0.3)
-		Tween(self.TitleBar, {BackgroundTransparency = 1}, 0.3)
-		Tween(titleLabel, {TextTransparency = 1}, 0.3)
-		Tween(minimizeBtn, {TextTransparency = 1}, 0.3)
-		Tween(closeBtn, {TextTransparency = 1}, 0.3)
-		Tween(shadow, {ImageTransparency = 1}, 0.3)
-		
-		-- Scale down from center
+		-- Simple fade out and hide
 		Tween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.3)
 		Tween(self.MainFrame, {Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.3)
-		
+		Tween(shadow, {ImageTransparency = 1}, 0.3)
 		wait(0.3)
-		self.ScreenGui:Destroy()
+		self.MainFrame.Visible = false
+		
+		-- Show notification
+		self:Notify("UI Hidden - Press Left Alt to show again", 3)
 	end)
 	
 	return self
@@ -607,33 +610,42 @@ function Library:CreateTab(name)
 	return tab
 end
 
--- Function: Show a notification on the screen.
 function Library:Notify(message, duration)
 	duration = duration or 3
+	
 	local notification = Instance.new("Frame")
 	notification.Size = UDim2.new(0, 300, 0, 50)
-	notification.Position = UDim2.new(1, -310, 0.8, 0)
+	notification.Position = UDim2.new(1, 20, 0.8, 0)  
 	notification.BackgroundColor3 = Theme.Secondary
 	notification.BorderSizePixel = 0
 	CreateRound(notification, 8)
 	notification.Parent = self.ScreenGui
 	
+	local notifShadow = Instance.new("ImageLabel")
+	notifShadow.Size = UDim2.new(1, 30, 1, 30)
+	notifShadow.Position = UDim2.new(0, -15, 0, -15)
+	notifShadow.BackgroundTransparency = 1
+	notifShadow.Image = "rbxassetid://5554236805"
+	notifShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+	notifShadow.ImageTransparency = 0.7
+	notifShadow.Parent = notification
+	
 	local msgLabel = Instance.new("TextLabel")
-	msgLabel.Size = UDim2.new(1, -10, 1, 0)
-	msgLabel.Position = UDim2.new(0, 5, 0, 0)
+	msgLabel.Size = UDim2.new(1, -20, 1, 0)
+	msgLabel.Position = UDim2.new(0, 10, 0, 0)
 	msgLabel.BackgroundTransparency = 1
 	msgLabel.Text = message
-	msgLabel.Font = Enum.Font.Gotham
-	msgLabel.TextSize = 18
+	msgLabel.Font = Enum.Font.GothamSemibold
+	msgLabel.TextSize = 14
 	msgLabel.TextColor3 = Theme.TextColor
+	msgLabel.TextWrapped = true
 	msgLabel.Parent = notification
 	
-	-- Slide in animation from the right
-	notification.Position = UDim2.new(1, 310, 0.8, 0)
-	Tween(notification, {Position = UDim2.new(1, -310, 0.8, 0)}, 0.5)
+	Tween(notification, {Position = UDim2.new(1, -320, 0.8, 0)}, 0.3)
+	
 	delay(duration, function()
-		Tween(notification, {Position = UDim2.new(1, 310, 0.8, 0)}, 0.5)
-		wait(0.5)
+		Tween(notification, {Position = UDim2.new(1, 20, 0.8, 0)}, 0.3)
+		wait(0.3)
 		notification:Destroy()
 	end)
 end
