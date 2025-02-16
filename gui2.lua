@@ -4,99 +4,185 @@ local UserInputService = game:GetService("UserInputService")
 
 -- Create base GUI elements with extended controls (buttons, sliders, text inputs, toggles, etc.)
 function Library.new(title)
+    -- Add Loading Screen
+    local LoadingGui = Instance.new("ScreenGui")
+    local LoadingFrame = Instance.new("Frame")
+    local LoadingBar = Instance.new("Frame")
+    local LoadingText = Instance.new("TextLabel")
+    local Logo = Instance.new("ImageLabel")
+    
+    LoadingGui.Name = "LoadingGui"
+    LoadingGui.Parent = game:GetService("CoreGui")
+    
+    LoadingFrame.Name = "LoadingFrame"
+    LoadingFrame.Parent = LoadingGui
+    LoadingFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+    LoadingFrame.Position = UDim2.new(0.5, -150, 0.5, -85)
+    LoadingFrame.Size = UDim2.new(0, 300, 0, 170)
+    LoadingFrame.BorderSizePixel = 0
+    
+    Logo.Name = "Logo"
+    Logo.Parent = LoadingFrame
+    Logo.BackgroundTransparency = 1
+    Logo.Position = UDim2.new(0.5, -40, 0.2, 0)
+    Logo.Size = UDim2.new(0, 80, 0, 80)
+    Logo.Image = "rbxassetid://14357329745" -- Replace with your logo
+    
+    LoadingText.Name = "LoadingText"
+    LoadingText.Parent = LoadingFrame
+    LoadingText.BackgroundTransparency = 1
+    LoadingText.Position = UDim2.new(0, 0, 0.7, 0)
+    LoadingText.Size = UDim2.new(1, 0, 0, 20)
+    LoadingText.Font = Enum.Font.GothamBold
+    LoadingText.Text = "Loading..."
+    LoadingText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    LoadingText.TextSize = 14
+    
+    LoadingBar.Name = "LoadingBar"
+    LoadingBar.Parent = LoadingFrame
+    LoadingBar.BackgroundColor3 = Color3.fromRGB(40, 120, 255)
+    LoadingBar.BorderSizePixel = 0
+    LoadingBar.Position = UDim2.new(0.1, 0, 0.85, 0)
+    LoadingBar.Size = UDim2.new(0, 0, 0, 4)
+    
+    -- Animate loading bar
+    local tween = TweenService:Create(LoadingBar, 
+        TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Size = UDim2.new(0.8, 0, 0, 4)}
+    )
+    tween:Play()
+    
+    -- Main GUI (shown after loading)
     local ScreenGui = Instance.new("ScreenGui")
     local MainFrame = Instance.new("Frame")
     local TopBar = Instance.new("Frame")
     local TitleLabel = Instance.new("TextLabel")
+    local CloseButton = Instance.new("ImageButton")
+    local MinimizeButton = Instance.new("ImageButton")
     local TabHolder = Instance.new("Frame")
     local TabContainer = Instance.new("ScrollingFrame")
     local ContentContainer = Instance.new("Frame")
+    local UICorner = Instance.new("UICorner")
+    local Shadow = Instance.new("ImageLabel")
     
-    -- Configure ScreenGui
-    ScreenGui.Name = "ScriptHub"
-    ScreenGui.Parent = game:GetService("CoreGui")
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    
-    -- Configure MainFrame
-    MainFrame.Name = "MainFrame"
-    MainFrame.Parent = ScreenGui
-    MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    MainFrame.BorderSizePixel = 0
+    -- Configure modern styling
+    MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
     MainFrame.Position = UDim2.new(0.5, -300, 0.5, -175)
     MainFrame.Size = UDim2.new(0, 600, 0, 350)
+    MainFrame.ClipsDescendants = true
     
-    -- Configure TopBar
-    TopBar.Name = "TopBar"
-    TopBar.Parent = MainFrame
-    TopBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    TopBar.BorderSizePixel = 0
-    TopBar.Size = UDim2.new(1, 0, 0, 30)
+    Shadow.Name = "Shadow"
+    Shadow.Parent = MainFrame
+    Shadow.BackgroundTransparency = 1
+    Shadow.Position = UDim2.new(0, -15, 0, -15)
+    Shadow.Size = UDim2.new(1, 30, 1, 30)
+    Shadow.Image = "rbxassetid://6015897843"
+    Shadow.ImageColor3 = Color3.new(0, 0, 0)
+    Shadow.ImageTransparency = 0.6
+    Shadow.ScaleType = Enum.ScaleType.Slice
+    Shadow.SliceCenter = Rect.new(49, 49, 450, 450)
     
-    -- Configure TitleLabel
-    TitleLabel.Name = "Title"
-    TitleLabel.Parent = TopBar
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Position = UDim2.new(0, 10, 0, 0)
-    TitleLabel.Size = UDim2.new(1, -20, 1, 0)
-    TitleLabel.Font = Enum.Font.SourceSansBold
-    TitleLabel.Text = title
+    UICorner.Parent = MainFrame
+    UICorner.CornerRadius = UDim.new(0, 8)
+    
+    TopBar.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    TopBar.Size = UDim2.new(1, 0, 0, 35)
+    
+    local TopBarCorner = UICorner:Clone()
+    TopBarCorner.Parent = TopBar
+    
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextSize = 14
     TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TitleLabel.TextSize = 16
-    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     
-    -- Configure TabHolder
-    TabHolder.Name = "TabHolder"
-    TabHolder.Parent = MainFrame
-    TabHolder.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    TabHolder.BorderSizePixel = 0
-    TabHolder.Position = UDim2.new(0, 0, 0, 30)
-    TabHolder.Size = UDim2.new(0, 150, 1, -30)
+    -- Add close and minimize buttons
+    CloseButton.Size = UDim2.new(0, 20, 0, 20)
+    CloseButton.Position = UDim2.new(1, -25, 0, 8)
+    CloseButton.Image = "rbxassetid://7743878857"
+    CloseButton.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    CloseButton.BackgroundTransparency = 1
     
-    -- Configure TabContainer
-    TabContainer.Name = "TabContainer"
-    TabContainer.Parent = TabHolder
+    MinimizeButton.Size = UDim2.new(0, 20, 0, 20)
+    MinimizeButton.Position = UDim2.new(1, -50, 0, 8)
+    MinimizeButton.Image = "rbxassetid://7743878552"
+    MinimizeButton.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    MinimizeButton.BackgroundTransparency = 1
+    
+    -- Modern tab styling
+    TabHolder.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    local TabHolderCorner = UICorner:Clone()
+    TabHolderCorner.Parent = TabHolder
+    
     TabContainer.BackgroundTransparency = 1
-    TabContainer.BorderSizePixel = 0
-    TabContainer.Position = UDim2.new(0, 0, 0, 5)
-    TabContainer.Size = UDim2.new(1, 0, 1, -10)
-    TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
-    TabContainer.ScrollBarThickness = 2
+    TabContainer.ScrollBarImageColor3 = Color3.fromRGB(40, 40, 45)
+    TabContainer.ScrollBarThickness = 4
     
-    -- Configure ContentContainer
-    ContentContainer.Name = "ContentContainer"
-    ContentContainer.Parent = MainFrame
-    ContentContainer.BackgroundTransparency = 1
-    ContentContainer.Position = UDim2.new(0, 150, 0, 30)
-    ContentContainer.Size = UDim2.new(1, -150, 1, -30)
+    -- Add animations and effects
+    local function CreateRipple(parent)
+        local ripple = Instance.new("Frame")
+        ripple.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        ripple.BackgroundTransparency = 0.8
+        ripple.BorderSizePixel = 0
+        ripple.Position = UDim2.new(0.5, 0, 0.5, 0)
+        ripple.AnchorPoint = Vector2.new(0.5, 0.5)
+        ripple.Parent = parent
+        
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(1, 0)
+        corner.Parent = ripple
+        
+        return ripple
+    end
     
-    -- Make window draggable
-    local dragging, dragInput, dragStart, startPos
-    TopBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = MainFrame.Position
-        end
+    -- Show main GUI after loading
+    wait(1.5)
+    LoadingGui:Destroy()
+    ScreenGui.Parent = game:GetService("CoreGui")
+    
+    -- Add minimize/close functionality
+    local minimized = false
+    MinimizeButton.MouseButton1Click:Connect(function()
+        minimized = not minimized
+        local targetSize = minimized and UDim2.new(1, 0, 0, 35) or UDim2.new(1, 0, 1, 0)
+        TweenService:Create(MainFrame, TweenInfo.new(0.3), {Size = targetSize}):Play()
     end)
     
-    TopBar.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
+    CloseButton.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
     end)
     
-    UserInputService.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
+    -- Enhance button creation
+    local function EnhanceButton(button)
+        local buttonCorner = Instance.new("UICorner")
+        buttonCorner.CornerRadius = UDim.new(0, 6)
+        buttonCorner.Parent = button
+        
+        local buttonStroke = Instance.new("UIStroke")
+        buttonStroke.Color = Color3.fromRGB(60, 60, 65)
+        buttonStroke.Thickness = 1
+        buttonStroke.Parent = button
+        
+        button.MouseEnter:Connect(function()
+            TweenService:Create(button, TweenInfo.new(0.2), 
+                {BackgroundColor3 = Color3.fromRGB(55, 55, 60)}):Play()
+        end)
+        
+        button.MouseLeave:Connect(function()
+            TweenService:Create(button, TweenInfo.new(0.2), 
+                {BackgroundColor3 = Color3.fromRGB(45, 45, 50)}):Play()
+        end)
+        
+        button.MouseButton1Down:Connect(function()
+            local ripple = CreateRipple(button)
+            local size = UDim2.new(1, 30, 1, 30)
+            local transparency = 1
+            
+            TweenService:Create(ripple, TweenInfo.new(0.5), 
+                {Size = size, BackgroundTransparency = transparency}):Play()
+            wait(0.5)
+            ripple:Destroy()
+        end)
+    end
     
     local Window = {}
     
