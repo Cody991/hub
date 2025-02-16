@@ -39,32 +39,65 @@ local function CreateLoadingScreen()
 	loadingFrame.BorderSizePixel = 0
 	loadingFrame.Parent = loadingScreen
 	
+	-- Add blur effect
+	local blur = Instance.new("BlurEffect")
+	blur.Size = 20
+	blur.Parent = game:GetService("Lighting")
+	
+	local centerContainer = Instance.new("Frame")
+	centerContainer.Size = UDim2.new(0.3, 0, 0.2, 0)
+	centerContainer.Position = UDim2.new(0.35, 0, 0.4, 0)
+	centerContainer.BackgroundColor3 = Theme.Secondary
+	centerContainer.BorderSizePixel = 0
+	CreateRound(centerContainer, 12)
+	centerContainer.Parent = loadingFrame
+	
 	local loadingLabel = Instance.new("TextLabel")
-	loadingLabel.Size = UDim2.new(0.3, 0, 0.1, 0)
-	loadingLabel.Position = UDim2.new(0.35, 0, 0.45, 0)
+	loadingLabel.Size = UDim2.new(1, 0, 0.4, 0)
+	loadingLabel.Position = UDim2.new(0, 0, 0.1, 0)
 	loadingLabel.BackgroundTransparency = 1
 	loadingLabel.Text = "Loading Cheats..."
 	loadingLabel.Font = Enum.Font.GothamBold
-	loadingLabel.TextSize = 36
-	loadingLabel.TextColor3 = Theme.Accent
-	loadingLabel.Parent = loadingFrame
+	loadingLabel.TextSize = 28
+	loadingLabel.TextColor3 = Theme.TextColor
+	loadingLabel.Parent = centerContainer
+	
+	local progressBarBg = Instance.new("Frame")
+	progressBarBg.Size = UDim2.new(0.8, 0, 0.1, 0)
+	progressBarBg.Position = UDim2.new(0.1, 0, 0.6, 0)
+	progressBarBg.BackgroundColor3 = Theme.MainBackground
+	progressBarBg.BorderSizePixel = 0
+	CreateRound(progressBarBg, 8)
+	progressBarBg.Parent = centerContainer
 	
 	local progressBar = Instance.new("Frame")
-	progressBar.Size = UDim2.new(0, 0, 0.02, 0)
-	progressBar.Position = UDim2.new(0.35, 0, 0.6, 0)
+	progressBar.Size = UDim2.new(0, 0, 1, 0)
 	progressBar.BackgroundColor3 = Theme.Accent
 	progressBar.BorderSizePixel = 0
-	CreateRound(progressBar, 5)
-	progressBar.Parent = loadingFrame
+	CreateRound(progressBar, 8)
+	progressBar.Parent = progressBarBg
 	
-	-- Animate the progress bar
+	-- Animate the progress bar with glow effect
+	local glow = Instance.new("UIGradient")
+	glow.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(Theme.Accent.R * 1.2, Theme.Accent.G * 1.2, Theme.Accent.B * 1.2)),
+		ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
+	})
+	glow.Parent = progressBar
+	
+	-- Animate progress bar and glow
 	for i = 0, 1, 0.01 do
-		progressBar:TweenSize(UDim2.new(i * 0.3, 0, 0.02, 0), "Out", "Linear", 0.02, true)
+		progressBar:TweenSize(UDim2.new(i, 0, 1, 0), "Out", "Sine", 0.02, true)
+		glow.Offset = Vector2.new(-i, 0)
 		wait(0.02)
 	end
 	
 	wait(0.5)
+	blur:Destroy()
 	Tween(loadingFrame, {BackgroundTransparency = 1}, 0.5)
+	Tween(centerContainer, {BackgroundTransparency = 1}, 0.5)
+	Tween(loadingLabel, {TextTransparency = 1}, 0.5)
 	wait(0.5)
 	loadingScreen:Destroy()
 end
@@ -260,41 +293,56 @@ function Library:CreateTab(name)
 	-- Function: Add a button element to this tab.
 	function tab:AddButton(text, callback)
 		local btn = Instance.new("TextButton")
-		btn.Size = UDim2.new(1, -20, 0, 35)
-		btn.Position = UDim2.new(0, 10, 0, #self.Elements * 40)
-		btn.BackgroundColor3 = Theme.Accent
+		btn.Size = UDim2.new(1, -20, 0, 40)
+		btn.Position = UDim2.new(0, 10, 0, #self.Elements * 45)
+		btn.BackgroundColor3 = Theme.Secondary
 		btn.BorderSizePixel = 0
-		btn.Text = text
-		btn.Font = Enum.Font.GothamBold
-		btn.TextSize = 14
-		btn.TextColor3 = Theme.TextColor
-		CreateRound(btn, 6)
+		btn.Text = ""
+		CreateRound(btn, 8)
 		btn.Parent = tab.Container
+
+		local btnLabel = Instance.new("TextLabel")
+		btnLabel.Size = UDim2.new(1, -20, 1, 0)
+		btnLabel.Position = UDim2.new(0, 10, 0, 0)
+		btnLabel.BackgroundTransparency = 1
+		btnLabel.Text = text
+		btnLabel.Font = Enum.Font.GothamBold
+		btnLabel.TextSize = 16
+		btnLabel.TextColor3 = Theme.TextColor
+		btnLabel.Parent = btn
+
+		-- Add gradient effect
+		local gradient = Instance.new("UIGradient")
+		gradient.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
+		})
+		gradient.Rotation = 90
+		gradient.Parent = btn
 
 		-- Add hover and click effects
 		btn.MouseEnter:Connect(function()
-			Tween(btn, {BackgroundColor3 = Color3.fromRGB(
-				Theme.Accent.R * 0.8,
-				Theme.Accent.G * 0.8,
-				Theme.Accent.B * 0.8
-			)}, 0.2)
-		end)
-
-		btn.MouseLeave:Connect(function()
 			Tween(btn, {BackgroundColor3 = Theme.Accent}, 0.2)
 		end)
 
+		btn.MouseLeave:Connect(function()
+			Tween(btn, {BackgroundColor3 = Theme.Secondary}, 0.2)
+		end)
+
 		btn.MouseButton1Down:Connect(function()
-			Tween(btn, {Size = UDim2.new(1, -24, 0, 33)}, 0.1)
+			Tween(btn, {Size = UDim2.new(1, -24, 0, 38)}, 0.1)
+			Tween(btn, {Position = UDim2.new(0, 12, 0, #self.Elements * 45 + 1)}, 0.1)
 		end)
 
 		btn.MouseButton1Up:Connect(function()
-			Tween(btn, {Size = UDim2.new(1, -20, 0, 35)}, 0.1)
+			Tween(btn, {Size = UDim2.new(1, -20, 0, 40)}, 0.1)
+			Tween(btn, {Position = UDim2.new(0, 10, 0, #self.Elements * 45)}, 0.1)
 		end)
 
 		btn.MouseButton1Click:Connect(function()
 			pcall(callback)
 		end)
+		
 		table.insert(self.Elements, btn)
 	end
 
@@ -303,34 +351,62 @@ function Library:CreateTab(name)
 		local toggleFrame = Instance.new("Frame")
 		toggleFrame.Size = UDim2.new(1, -20, 0, 40)
 		toggleFrame.Position = UDim2.new(0, 10, 0, #self.Elements * 45)
-		toggleFrame.BackgroundTransparency = 1
+		toggleFrame.BackgroundColor3 = Theme.Secondary
+		toggleFrame.BorderSizePixel = 0
+		CreateRound(toggleFrame, 8)
 		toggleFrame.Parent = tab.Container
 
 		local label = Instance.new("TextLabel")
 		label.Size = UDim2.new(0.7, 0, 1, 0)
+		label.Position = UDim2.new(0.05, 0, 0, 0)
 		label.BackgroundTransparency = 1
 		label.Text = text
 		label.Font = Enum.Font.GothamMedium
-		label.TextSize = 18
+		label.TextSize = 16
+		label.TextXAlignment = Enum.TextXAlignment.Left
 		label.TextColor3 = Theme.TextColor
 		label.Parent = toggleFrame
 
-		local toggleButton = Instance.new("TextButton")
-		toggleButton.Size = UDim2.new(0, 40, 0, 24)
-		toggleButton.Position = UDim2.new(0.75, 0, 0.3, 0)
-		toggleButton.BackgroundColor3 = default and Theme.Accent or Theme.Secondary
-		toggleButton.Text = ""
-		toggleButton.BorderSizePixel = 0
-		CreateRound(toggleButton, 12)
-		toggleButton.Parent = toggleFrame
+		local toggleContainer = Instance.new("Frame")
+		toggleContainer.Size = UDim2.new(0, 44, 0, 24)
+		toggleContainer.Position = UDim2.new(0.85, -22, 0.5, -12)
+		toggleContainer.BackgroundColor3 = default and Theme.Accent or Color3.fromRGB(80, 80, 80)
+		toggleContainer.BorderSizePixel = 0
+		CreateRound(toggleContainer, 12)
+		toggleContainer.Parent = toggleFrame
+
+		local knob = Instance.new("Frame")
+		knob.Size = UDim2.new(0, 18, 0, 18)
+		knob.Position = UDim2.new(default and 0.6 or 0.1, 0, 0.5, -9)
+		knob.BackgroundColor3 = Color3.new(1, 1, 1)
+		knob.BorderSizePixel = 0
+		CreateRound(knob, 9)
+		knob.Parent = toggleContainer
 
 		local toggled = default
 
-		toggleButton.MouseButton1Click:Connect(function()
-			toggled = not toggled
-			toggleButton.BackgroundColor3 = toggled and Theme.Accent or Theme.Secondary
-			pcall(callback, toggled)
+		toggleFrame.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				toggled = not toggled
+				Tween(toggleContainer, {BackgroundColor3 = toggled and Theme.Accent or Color3.fromRGB(80, 80, 80)}, 0.2)
+				Tween(knob, {Position = toggled and UDim2.new(0.6, 0, 0.5, -9) or UDim2.new(0.1, 0, 0.5, -9)}, 0.2)
+				pcall(callback, toggled)
+			end
 		end)
+
+		-- Add hover effect
+		toggleFrame.MouseEnter:Connect(function()
+			Tween(toggleFrame, {BackgroundColor3 = Color3.fromRGB(
+				Theme.Secondary.R * 1.2,
+				Theme.Secondary.G * 1.2,
+				Theme.Secondary.B * 1.2
+			)}, 0.2)
+		end)
+
+		toggleFrame.MouseLeave:Connect(function()
+			Tween(toggleFrame, {BackgroundColor3 = Theme.Secondary}, 0.2)
+		end)
+
 		table.insert(self.Elements, toggleFrame)
 	end
 
