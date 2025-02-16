@@ -3,11 +3,11 @@ local UserInputService = game:GetService("UserInputService")
 
 -- Theme configuration
 local Theme = {
-	MainBackground = Color3.fromRGB(25, 25, 25),
-	Accent = Color3.fromRGB(114, 137, 218),       -- Blurple
-	Secondary = Color3.fromRGB(54, 57, 63),        -- Gray
-	Highlight = Color3.fromRGB(128, 0, 128),         -- Purple
-	TextColor = Color3.fromRGB(255, 255, 255)         -- White
+	MainBackground = Color3.fromRGB(20, 20, 25),    -- Darker background
+	Accent = Color3.fromRGB(114, 137, 218),         -- Blurple
+	Secondary = Color3.fromRGB(30, 30, 35),         -- Darker gray
+	Highlight = Color3.fromRGB(40, 40, 45),         -- Slightly lighter gray
+	TextColor = Color3.fromRGB(235, 235, 235)       -- Slightly off-white
 }
 
 -- Utility: Add rounded corners to a UI element
@@ -39,66 +39,77 @@ local function CreateLoadingScreen()
 	loadingFrame.BorderSizePixel = 0
 	loadingFrame.Parent = loadingScreen
 	
-	-- Add blur effect
+	-- Enhanced blur effect
 	local blur = Instance.new("BlurEffect")
-	blur.Size = 20
+	blur.Size = 24
 	blur.Parent = game:GetService("Lighting")
 	
 	local centerContainer = Instance.new("Frame")
-	centerContainer.Size = UDim2.new(0.3, 0, 0.2, 0)
-	centerContainer.Position = UDim2.new(0.35, 0, 0.4, 0)
+	centerContainer.Size = UDim2.new(0.25, 0, 0.15, 0)
+	centerContainer.Position = UDim2.new(0.375, 0, 0.425, 0)
 	centerContainer.BackgroundColor3 = Theme.Secondary
 	centerContainer.BorderSizePixel = 0
 	CreateRound(centerContainer, 12)
 	centerContainer.Parent = loadingFrame
 	
+	-- Add subtle shadow
+	local shadow = Instance.new("ImageLabel")
+	shadow.Size = UDim2.new(1.2, 0, 1.2, 0)
+	shadow.Position = UDim2.new(-0.1, 0, -0.1, 0)
+	shadow.BackgroundTransparency = 1
+	shadow.Image = "rbxassetid://5554236805"
+	shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+	shadow.ImageTransparency = 0.6
+	shadow.Parent = centerContainer
+	
 	local loadingLabel = Instance.new("TextLabel")
-	loadingLabel.Size = UDim2.new(1, 0, 0.4, 0)
-	loadingLabel.Position = UDim2.new(0, 0, 0.1, 0)
+	loadingLabel.Size = UDim2.new(1, 0, 0.3, 0)
+	loadingLabel.Position = UDim2.new(0, 0, 0.15, 0)
 	loadingLabel.BackgroundTransparency = 1
 	loadingLabel.Text = "Loading Cheats..."
 	loadingLabel.Font = Enum.Font.GothamBold
-	loadingLabel.TextSize = 28
+	loadingLabel.TextSize = 22
 	loadingLabel.TextColor3 = Theme.TextColor
 	loadingLabel.Parent = centerContainer
 	
 	local progressBarBg = Instance.new("Frame")
-	progressBarBg.Size = UDim2.new(0.8, 0, 0.1, 0)
-	progressBarBg.Position = UDim2.new(0.1, 0, 0.6, 0)
+	progressBarBg.Size = UDim2.new(0.85, 0, 0.1, 0)
+	progressBarBg.Position = UDim2.new(0.075, 0, 0.6, 0)
 	progressBarBg.BackgroundColor3 = Theme.MainBackground
 	progressBarBg.BorderSizePixel = 0
-	CreateRound(progressBarBg, 8)
+	CreateRound(progressBarBg, 6)
 	progressBarBg.Parent = centerContainer
 	
 	local progressBar = Instance.new("Frame")
 	progressBar.Size = UDim2.new(0, 0, 1, 0)
 	progressBar.BackgroundColor3 = Theme.Accent
 	progressBar.BorderSizePixel = 0
-	CreateRound(progressBar, 8)
+	CreateRound(progressBar, 6)
 	progressBar.Parent = progressBarBg
 	
-	-- Animate the progress bar with glow effect
+	-- Improved glow effect
 	local glow = Instance.new("UIGradient")
 	glow.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(Theme.Accent.R * 1.2, Theme.Accent.G * 1.2, Theme.Accent.B * 1.2)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(Theme.Accent.R * 1.3, Theme.Accent.G * 1.3, Theme.Accent.B * 1.3)),
 		ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
 	})
 	glow.Parent = progressBar
 	
-	-- Animate progress bar and glow
-	for i = 0, 1, 0.01 do
-		progressBar:TweenSize(UDim2.new(i, 0, 1, 0), "Out", "Sine", 0.02, true)
+	-- Smoother animation
+	for i = 0, 1, 0.008 do
+		progressBar:TweenSize(UDim2.new(i, 0, 1, 0), "Out", "Sine", 0.01, true)
 		glow.Offset = Vector2.new(-i, 0)
-		wait(0.02)
+		wait(0.01)
 	end
 	
-	wait(0.5)
+	wait(0.3)
 	blur:Destroy()
-	Tween(loadingFrame, {BackgroundTransparency = 1}, 0.5)
-	Tween(centerContainer, {BackgroundTransparency = 1}, 0.5)
-	Tween(loadingLabel, {TextTransparency = 1}, 0.5)
-	wait(0.5)
+	Tween(loadingFrame, {BackgroundTransparency = 1}, 0.4)
+	Tween(shadow, {ImageTransparency = 1}, 0.4)
+	Tween(centerContainer, {BackgroundTransparency = 1}, 0.4)
+	Tween(loadingLabel, {TextTransparency = 1}, 0.4)
+	wait(0.4)
 	loadingScreen:Destroy()
 end
 
@@ -292,58 +303,74 @@ function Library:CreateTab(name)
 
 	-- Function: Add a button element to this tab.
 	function tab:AddButton(text, callback)
+		local btnContainer = Instance.new("Frame")
+		btnContainer.Size = UDim2.new(1, -20, 0, 40)
+		btnContainer.Position = UDim2.new(0, 10, 0, #self.Elements * 45)
+		btnContainer.BackgroundColor3 = Theme.Secondary
+		btnContainer.BorderSizePixel = 0
+		CreateRound(btnContainer, 8)
+		btnContainer.Parent = tab.Container
+		
 		local btn = Instance.new("TextButton")
-		btn.Size = UDim2.new(1, -20, 0, 40)
-		btn.Position = UDim2.new(0, 10, 0, #self.Elements * 45)
-		btn.BackgroundColor3 = Theme.Secondary
-		btn.BorderSizePixel = 0
-		btn.Text = ""
-		CreateRound(btn, 8)
-		btn.Parent = tab.Container
-
-		local btnLabel = Instance.new("TextLabel")
-		btnLabel.Size = UDim2.new(1, -20, 1, 0)
-		btnLabel.Position = UDim2.new(0, 10, 0, 0)
-		btnLabel.BackgroundTransparency = 1
-		btnLabel.Text = text
-		btnLabel.Font = Enum.Font.GothamBold
-		btnLabel.TextSize = 16
-		btnLabel.TextColor3 = Theme.TextColor
-		btnLabel.Parent = btn
-
-		-- Add gradient effect
+		btn.Size = UDim2.new(1, 0, 1, 0)
+		btn.BackgroundTransparency = 1
+		btn.Text = text
+		btn.Font = Enum.Font.GothamSemibold
+		btn.TextSize = 14
+		btn.TextColor3 = Theme.TextColor
+		btn.Parent = btnContainer
+		
+		-- Add modern gradient
 		local gradient = Instance.new("UIGradient")
 		gradient.Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
 			ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
 		})
-		gradient.Rotation = 90
-		gradient.Parent = btn
-
-		-- Add hover and click effects
-		btn.MouseEnter:Connect(function()
-			Tween(btn, {BackgroundColor3 = Theme.Accent}, 0.2)
+		gradient.Rotation = 45
+		gradient.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.95),
+			NumberSequenceKeypoint.new(1, 0.97)
+		})
+		gradient.Parent = btnContainer
+		
+		-- Add subtle glow effect
+		local glow = Instance.new("ImageLabel")
+		glow.Size = UDim2.new(1, 20, 1, 20)
+		glow.Position = UDim2.new(0, -10, 0, -10)
+		glow.BackgroundTransparency = 1
+		glow.Image = "rbxassetid://5554236805"
+		glow.ImageColor3 = Theme.Accent
+		glow.ImageTransparency = 0.9
+		glow.Parent = btnContainer
+		
+		-- Enhanced hover and click effects
+		btnContainer.MouseEnter:Connect(function()
+			Tween(btnContainer, {BackgroundColor3 = Theme.Highlight}, 0.2)
+			Tween(glow, {ImageTransparency = 0.8}, 0.2)
 		end)
-
-		btn.MouseLeave:Connect(function()
-			Tween(btn, {BackgroundColor3 = Theme.Secondary}, 0.2)
+		
+		btnContainer.MouseLeave:Connect(function()
+			Tween(btnContainer, {BackgroundColor3 = Theme.Secondary}, 0.2)
+			Tween(glow, {ImageTransparency = 0.9}, 0.2)
 		end)
-
+		
 		btn.MouseButton1Down:Connect(function()
-			Tween(btn, {Size = UDim2.new(1, -24, 0, 38)}, 0.1)
-			Tween(btn, {Position = UDim2.new(0, 12, 0, #self.Elements * 45 + 1)}, 0.1)
+			Tween(btnContainer, {Size = UDim2.new(1, -24, 0, 38)}, 0.08)
+			Tween(btnContainer, {Position = UDim2.new(0, 12, 0, #self.Elements * 45 + 1)}, 0.08)
+			Tween(glow, {ImageTransparency = 0.7}, 0.08)
 		end)
-
+		
 		btn.MouseButton1Up:Connect(function()
-			Tween(btn, {Size = UDim2.new(1, -20, 0, 40)}, 0.1)
-			Tween(btn, {Position = UDim2.new(0, 10, 0, #self.Elements * 45)}, 0.1)
+			Tween(btnContainer, {Size = UDim2.new(1, -20, 0, 40)}, 0.08)
+			Tween(btnContainer, {Position = UDim2.new(0, 10, 0, #self.Elements * 45)}, 0.08)
+			Tween(glow, {ImageTransparency = 0.8}, 0.08)
 		end)
-
+		
 		btn.MouseButton1Click:Connect(function()
 			pcall(callback)
 		end)
 		
-		table.insert(self.Elements, btn)
+		table.insert(self.Elements, btnContainer)
 	end
 
 	-- Function: Add a toggle element.
