@@ -27,6 +27,11 @@ end
 
 -- Create a loading screen with a progress bar animation
 local function CreateLoadingScreen()
+	-- Check if UI already exists
+	if game:GetService("CoreGui"):FindFirstChild("CheatUILoading") then
+		return
+	end
+	
 	local loadingScreen = Instance.new("ScreenGui")
 	loadingScreen.Name = "CheatUILoading"
 	loadingScreen.ResetOnSpawn = false
@@ -122,8 +127,16 @@ Library.__index = Library
 
 -- Create the main UI window. This function returns a library object.
 function Library.new(title)
+	-- Check if UI already exists
+	if game:GetService("CoreGui"):FindFirstChild("CheatUI") then
+		return
+	end
+
 	local self = setmetatable({}, Library)
 	self.Title = title or "Cheat UI Library"
+	
+	-- Store original position for proper UI toggling
+	self.OriginalPosition = UDim2.new(0.5, -350, 0.5, -200)
 	
 	-- Main ScreenGui
 	self.ScreenGui = Instance.new("ScreenGui")
@@ -135,7 +148,7 @@ function Library.new(title)
 	-- Main window frame
 	self.MainFrame = Instance.new("Frame")
 	self.MainFrame.Size = UDim2.new(0, 700, 0, 400)
-	self.MainFrame.Position = UDim2.new(0.5, -350, 0.5, -200)
+	self.MainFrame.Position = self.OriginalPosition
 	self.MainFrame.BackgroundColor3 = Theme.MainBackground
 	self.MainFrame.BorderSizePixel = 0
 	CreateRound(self.MainFrame, 12)
@@ -248,13 +261,13 @@ function Library.new(title)
 	UserInputService.InputBegan:Connect(function(input, gameProcessed)
 		if gameProcessed then return end
 		if input.KeyCode == Enum.KeyCode.LeftAlt then
-			if self.MainFrame.Size == UDim2.new(0, 0, 0, 0) then
+			if not self.MainFrame.Visible then
 				-- Opening animation
 				self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
 				self.MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 				self.MainFrame.Visible = true
 				Tween(self.MainFrame, {Size = self.OriginalSize}, 0.3)
-				Tween(self.MainFrame, {Position = UDim2.new(0.5, -350, 0.5, -200)}, 0.3)
+				Tween(self.MainFrame, {Position = self.OriginalPosition}, 0.3)
 				Tween(shadow, {ImageTransparency = 0.7}, 0.3)
 			else
 				-- Closing animation
@@ -610,17 +623,19 @@ function Library:CreateTab(name)
 	return tab
 end
 
+-- Function: Show a notification on the screen.
 function Library:Notify(message, duration)
 	duration = duration or 3
 	
 	local notification = Instance.new("Frame")
 	notification.Size = UDim2.new(0, 300, 0, 50)
-	notification.Position = UDim2.new(1, 20, 0.8, 0)  
+	notification.Position = UDim2.new(1, 20, 0.8, 0)  -- Start off screen
 	notification.BackgroundColor3 = Theme.Secondary
 	notification.BorderSizePixel = 0
 	CreateRound(notification, 8)
 	notification.Parent = self.ScreenGui
 	
+	-- Add shadow to notification
 	local notifShadow = Instance.new("ImageLabel")
 	notifShadow.Size = UDim2.new(1, 30, 1, 30)
 	notifShadow.Position = UDim2.new(0, -15, 0, -15)
@@ -641,8 +656,10 @@ function Library:Notify(message, duration)
 	msgLabel.TextWrapped = true
 	msgLabel.Parent = notification
 	
+	-- Slide in animation
 	Tween(notification, {Position = UDim2.new(1, -320, 0.8, 0)}, 0.3)
 	
+	-- Wait and slide out
 	delay(duration, function()
 		Tween(notification, {Position = UDim2.new(1, 20, 0.8, 0)}, 0.3)
 		wait(0.3)
