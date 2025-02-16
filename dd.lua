@@ -676,6 +676,143 @@ function Library:CreateTab(name)
 		table.insert(self.Elements, textFrame)
 	end
 
+	-- Function: Add a color picker element
+	function tab:AddColorPicker(text, default, callback)
+		local colorPickerFrame = Instance.new("Frame")
+		colorPickerFrame.Size = UDim2.new(1, -20, 0, 40)
+		colorPickerFrame.Position = UDim2.new(0, 10, 0, #self.Elements * 45)
+		colorPickerFrame.BackgroundColor3 = Theme.Secondary
+		colorPickerFrame.BorderSizePixel = 0
+		CreateRound(colorPickerFrame, 8)
+		colorPickerFrame.Parent = tab.Container
+
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.new(0.7, 0, 1, 0)
+		label.Position = UDim2.new(0.05, 0, 0, 0)
+		label.BackgroundTransparency = 1
+		label.Text = text
+		label.Font = Enum.Font.GothamMedium
+		label.TextSize = 14
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.TextColor3 = Theme.TextColor
+		label.Parent = colorPickerFrame
+
+		local colorDisplay = Instance.new("TextButton")
+		colorDisplay.Size = UDim2.new(0, 30, 0, 30)
+		colorDisplay.Position = UDim2.new(0.85, -15, 0.5, -15)
+		colorDisplay.BackgroundColor3 = default or Color3.new(1, 1, 1)
+		colorDisplay.BorderSizePixel = 0
+		CreateRound(colorDisplay, 6)
+		colorDisplay.Parent = colorPickerFrame
+
+		-- Color picker window
+		local pickerGui = Instance.new("Frame")
+		pickerGui.Size = UDim2.new(0, 200, 0, 220)
+		pickerGui.Position = UDim2.new(1, 10, 0, 0)
+		pickerGui.BackgroundColor3 = Theme.Secondary
+		pickerGui.BorderSizePixel = 0
+		pickerGui.Visible = false
+		pickerGui.ZIndex = 100
+		CreateRound(pickerGui, 8)
+		pickerGui.Parent = colorPickerFrame
+
+		-- Color gradient
+		local colorGradient = Instance.new("ImageButton")
+		colorGradient.Size = UDim2.new(0.9, 0, 0.7, 0)
+		colorGradient.Position = UDim2.new(0.05, 0, 0.05, 0)
+		colorGradient.BackgroundColor3 = Color3.new(1, 0, 0)
+		colorGradient.BorderSizePixel = 0
+		colorGradient.ZIndex = 100
+		colorGradient.Image = "rbxassetid://4155801252"
+		CreateRound(colorGradient, 6)
+		colorGradient.Parent = pickerGui
+
+		-- Hue slider
+		local hueSlider = Instance.new("ImageButton")
+		hueSlider.Size = UDim2.new(0.9, 0, 0, 20)
+		hueSlider.Position = UDim2.new(0.05, 0, 0.8, 0)
+		hueSlider.BackgroundColor3 = Color3.new(1, 1, 1)
+		hueSlider.BorderSizePixel = 0
+		hueSlider.ZIndex = 100
+		hueSlider.Image = "rbxassetid://3641079629"
+		CreateRound(hueSlider, 6)
+		hueSlider.Parent = pickerGui
+
+		local hue, saturation, value = 0, 0, 1
+		local selectedColor = default or Color3.new(1, 1, 1)
+
+		local function updateColor()
+			local color = Color3.fromHSV(hue, saturation, value)
+			colorDisplay.BackgroundColor3 = color
+			selectedColor = color
+			pcall(callback, color)
+		end
+
+		-- Handle color gradient input
+		colorGradient.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				local dragConnection
+				dragConnection = UserInputService.InputChanged:Connect(function(dragInput)
+					if dragInput.UserInputType == Enum.UserInputType.MouseMovement then
+						local relativeX = math.clamp((dragInput.Position.X - colorGradient.AbsolutePosition.X) / colorGradient.AbsoluteSize.X, 0, 1)
+						local relativeY = math.clamp((dragInput.Position.Y - colorGradient.AbsolutePosition.Y) / colorGradient.AbsoluteSize.Y, 0, 1)
+						saturation = relativeX
+						value = 1 - relativeY
+						updateColor()
+					end
+				end)
+
+				UserInputService.InputEnded:Connect(function(endInput)
+					if endInput.UserInputType == Enum.UserInputType.MouseButton1 then
+						dragConnection:Disconnect()
+					end
+				end)
+			end
+		end)
+
+		-- Handle hue slider input
+		hueSlider.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				local dragConnection
+				dragConnection = UserInputService.InputChanged:Connect(function(dragInput)
+					if dragInput.UserInputType == Enum.UserInputType.MouseMovement then
+						hue = math.clamp((dragInput.Position.X - hueSlider.AbsolutePosition.X) / hueSlider.AbsoluteSize.X, 0, 1)
+						updateColor()
+					end
+				end)
+
+				UserInputService.InputEnded:Connect(function(endInput)
+					if endInput.UserInputType == Enum.UserInputType.MouseButton1 then
+						dragConnection:Disconnect()
+					end
+				end)
+			end
+		end)
+
+		-- Toggle color picker visibility
+		colorDisplay.MouseButton1Click:Connect(function()
+			pickerGui.Visible = not pickerGui.Visible
+		end)
+
+		-- Close picker when clicking outside
+		UserInputService.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				local mousePos = UserInputService:GetMouseLocation()
+				local inFrame = mousePos.X >= pickerGui.AbsolutePosition.X and
+							   mousePos.X <= pickerGui.AbsolutePosition.X + pickerGui.AbsoluteSize.X and
+							   mousePos.Y >= pickerGui.AbsolutePosition.Y and
+							   mousePos.Y <= pickerGui.AbsolutePosition.Y + pickerGui.AbsoluteSize.Y
+
+				if not inFrame and pickerGui.Visible then
+					pickerGui.Visible = false
+				end
+			end
+		end)
+
+		table.insert(self.Elements, colorPickerFrame)
+		return colorDisplay
+	end
+
 	return tab
 end
 
