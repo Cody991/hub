@@ -203,10 +203,14 @@ function Library.new(title)
         Container.Size = UDim2.new(1, 0, 1, 0)
         Container.ScrollBarThickness = 2
         Container.Visible = false
+        Container.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        Container.CanvasSize = UDim2.new(0, 0, 0, 0)
+        Container.Position = UDim2.new(0, 0, 0, 0)
         
         ItemList.Parent = Container
         ItemList.SortOrder = Enum.SortOrder.LayoutOrder
-        ItemList.Padding = UDim.new(0, 5)
+        ItemList.Padding = UDim.new(0, 8)
+        ItemList.HorizontalAlignment = Enum.HorizontalAlignment.Center
         
         local Tab = {}
         
@@ -223,6 +227,7 @@ function Library.new(title)
             Button.Parent = Container
             Button.BackgroundColor3 = colors.foreground
             Button.Size = UDim2.new(1, -20, 0, 40)
+            Button.Position = UDim2.new(0, 10, 0, 0)
             Button.ClipsDescendants = true
             
             ButtonContent.Name = "ButtonContent"
