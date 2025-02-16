@@ -195,39 +195,28 @@ function Library.new(title)
 	self.Minimized = false
 	self.OriginalSize = self.MainFrame.Size
 
-	minimizeBtn.MouseButton1Click:Connect(function()
-		self.Minimized = not self.Minimized
-		if self.Minimized then
-			Tween(self.MainFrame, {Size = UDim2.new(0, 700, 0, 40)}, 0.3)
-		else
-			Tween(self.MainFrame, {Size = self.OriginalSize}, 0.3)
-		end
-	end)
+	-- Content container for everything below title bar
+	self.ContentContainer = Instance.new("Frame")
+	self.ContentContainer.Size = UDim2.new(1, 0, 1, -40)
+	self.ContentContainer.Position = UDim2.new(0, 0, 0, 40)
+	self.ContentContainer.BackgroundTransparency = 1
+	self.ContentContainer.ClipsDescendants = true  -- This will hide content when minimized
+	self.ContentContainer.Parent = self.MainFrame
 
-	closeBtn.MouseButton1Click:Connect(function()
-		-- Closing animation
-		Tween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.3)
-		Tween(self.MainFrame, {Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.3)
-		Tween(shadow, {ImageTransparency = 1}, 0.3)
-		wait(0.3)
-		self.ScreenGui:Destroy()
-	end)
-
-	-- Tab buttons container (moved to side)
+	-- Move TabButtons and TabContainer to be children of ContentContainer
 	self.TabButtons = Instance.new("Frame")
-	self.TabButtons.Size = UDim2.new(0, 150, 1, -40)
-	self.TabButtons.Position = UDim2.new(0, 0, 0, 40)
+	self.TabButtons.Size = UDim2.new(0, 150, 1, 0)
+	self.TabButtons.Position = UDim2.new(0, 0, 0, 0)
 	self.TabButtons.BackgroundColor3 = Theme.Secondary
 	self.TabButtons.BorderSizePixel = 0
-	self.TabButtons.Parent = self.MainFrame
-	
-	-- Container for tab pages (adjusted for side tabs)
+	self.TabButtons.Parent = self.ContentContainer
+
 	self.TabContainer = Instance.new("Frame")
-	self.TabContainer.Size = UDim2.new(1, -150, 1, -40)
-	self.TabContainer.Position = UDim2.new(0, 150, 0, 40)
+	self.TabContainer.Size = UDim2.new(1, -150, 1, 0)
+	self.TabContainer.Position = UDim2.new(0, 150, 0, 0)
 	self.TabContainer.BackgroundTransparency = 1
-	self.TabContainer.Parent = self.MainFrame
-	
+	self.TabContainer.Parent = self.ContentContainer
+
 	self.Tabs = {} -- Holds all created tabs
 	
 	-- Enable dragging of the main window via the title bar
@@ -281,6 +270,32 @@ function Library.new(title)
 	-- Always create a Settings tab that includes info about the toggle hotkey.
 	local settingsTab = self:CreateTab("Settings")
 	settingsTab:AddText("Toggle UI Visibility: LeftAlt")
+	
+	minimizeBtn.MouseButton1Click:Connect(function()
+		self.Minimized = not self.Minimized
+		if self.Minimized then
+			Tween(self.MainFrame, {Size = UDim2.new(0, 700, 0, 40)}, 0.3)
+		else
+			Tween(self.MainFrame, {Size = self.OriginalSize}, 0.3)
+		end
+	end)
+
+	closeBtn.MouseButton1Click:Connect(function()
+		-- Fade out everything
+		Tween(self.MainFrame, {BackgroundTransparency = 1}, 0.3)
+		Tween(self.TitleBar, {BackgroundTransparency = 1}, 0.3)
+		Tween(titleLabel, {TextTransparency = 1}, 0.3)
+		Tween(minimizeBtn, {TextTransparency = 1}, 0.3)
+		Tween(closeBtn, {TextTransparency = 1}, 0.3)
+		Tween(shadow, {ImageTransparency = 1}, 0.3)
+		
+		-- Scale down from center
+		Tween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.3)
+		Tween(self.MainFrame, {Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.3)
+		
+		wait(0.3)
+		self.ScreenGui:Destroy()
+	end)
 	
 	return self
 end
