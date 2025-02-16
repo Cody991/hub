@@ -345,21 +345,26 @@ function Library.new(title)
             local Title = Instance.new("TextLabel")
             local ToggleButton = Instance.new("TextButton")
             local Indicator = Instance.new("Frame")
+            local UICorner = Instance.new("UICorner")
             
             Toggle.Name = text
             Toggle.Parent = Container
             Toggle.BackgroundColor3 = colors.foreground
-            Toggle.Size = UDim2.new(1, -10, 0, 30)
+            Toggle.Size = UDim2.new(1, -20, 0, 35)
+            Toggle.Position = UDim2.new(0, 10, 0, 0)
             
+            UICorner.CornerRadius = UDim.new(0, 6)
+            UICorner.Parent = Toggle
+
             Title.Name = "Title"
             Title.Parent = Toggle
             Title.BackgroundTransparency = 1
             Title.Position = UDim2.new(0, 10, 0, 0)
-            Title.Size = UDim2.new(1, -50, 1, 0)
-            Title.Font = Enum.Font.Gotham
+            Title.Size = UDim2.new(1, -60, 1, 0)
+            Title.Font = Enum.Font.GothamMedium
             Title.Text = text
             Title.TextColor3 = colors.text
-            Title.TextSize = 12
+            Title.TextSize = 13
             Title.TextXAlignment = Enum.TextXAlignment.Left
             
             ToggleButton.Name = "ToggleButton"
@@ -368,11 +373,19 @@ function Library.new(title)
             ToggleButton.Position = UDim2.new(1, -40, 0.5, -10)
             ToggleButton.Size = UDim2.new(0, 30, 0, 20)
             
+            local ToggleCorner = Instance.new("UICorner")
+            ToggleCorner.CornerRadius = UDim.new(0, 10)
+            ToggleCorner.Parent = ToggleButton
+            
             Indicator.Name = "Indicator"
-            Indicator.Parent = Toggle
+            Indicator.Parent = ToggleButton
             Indicator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             Indicator.Position = UDim2.new(0, 2, 0.5, -8)
             Indicator.Size = UDim2.new(0, 16, 0, 16)
+            
+            local IndicatorCorner = Instance.new("UICorner")
+            IndicatorCorner.CornerRadius = UDim.new(1, 0)
+            IndicatorCorner.Parent = Indicator
             
             local toggled = default or false
             
