@@ -95,10 +95,12 @@ function Library.new(title)
     TabHolder.BackgroundColor3 = colors.foreground
     TabHolder.Position = UDim2.new(0, 10, 0, 50)
     TabHolder.Size = UDim2.new(0, 150, 1, -60)
+    TabHolder.BackgroundTransparency = 0.5  -- Add subtle transparency
 
-    local TabHolderCorner = Instance.new("UICorner")
-    TabHolderCorner.CornerRadius = UDim.new(0, 6)
-    TabHolderCorner.Parent = TabHolder
+    -- Add padding at the top of TabHolder
+    local TabPadding = Instance.new("UIPadding")
+    TabPadding.Parent = TabHolder
+    TabPadding.PaddingTop = UDim.new(0, 5)
 
     TabList.Parent = TabHolder
     TabList.SortOrder = Enum.SortOrder.LayoutOrder
@@ -174,28 +176,94 @@ function Library.new(title)
         
         TabButton.Name = name
         TabButton.Parent = TabHolder
-        TabButton.BackgroundColor3 = colors.foreground
-        TabButton.Size = UDim2.new(1, -10, 0, 35)
-        TabButton.Position = UDim2.new(0, 5, 0, 0)
+        TabButton.BackgroundColor3 = colors.background
+        TabButton.BackgroundTransparency = 0.8  -- More transparent by default
+        TabButton.Size = UDim2.new(1, -16, 0, 32)  -- Slightly smaller
+        TabButton.Position = UDim2.new(0, 8, 0, 0)  -- Centered
         TabButton.Font = Enum.Font.GothamSemibold
         TabButton.Text = name
         TabButton.TextColor3 = colors.subtext
-        TabButton.TextSize = 12
-        
-        -- Enhanced hover effect
+        TabButton.TextSize = 13
+        TabButton.AutoButtonColor = false  -- Disable default button effect
+
+        -- Add rounded corners to tab buttons
+        local TabButtonCorner = Instance.new("UICorner")
+        TabButtonCorner.CornerRadius = UDim.new(0, 6)
+        TabButtonCorner.Parent = TabButton
+
+        -- Add a subtle stroke
+        local TabButtonStroke = Instance.new("UIStroke")
+        TabButtonStroke.Color = colors.border
+        TabButtonStroke.Transparency = 0.8
+        TabButtonStroke.Thickness = 1
+        TabButtonStroke.Parent = TabButton
+
+        -- Enhanced hover and selection effects
+        local selected = false
+
         TabButton.MouseEnter:Connect(function()
-            TweenService:Create(TabButton, TweenInfo.new(0.2), {
-                BackgroundColor3 = colors.hover,
-                TextColor3 = colors.text
-            }):Play()
+            if not selected then
+                TweenService:Create(TabButton, TweenInfo.new(0.2), {
+                    BackgroundTransparency = 0.6,
+                    TextColor3 = colors.text
+                }):Play()
+                TweenService:Create(TabButtonStroke, TweenInfo.new(0.2), {
+                    Transparency = 0.6
+                }):Play()
+            end
         end)
         
         TabButton.MouseLeave:Connect(function()
-            TweenService:Create(TabButton, TweenInfo.new(0.2), {
-                BackgroundColor3 = colors.foreground,
-                TextColor3 = colors.subtext
-            }):Play()
+            if not selected then
+                TweenService:Create(TabButton, TweenInfo.new(0.2), {
+                    BackgroundTransparency = 0.8,
+                    TextColor3 = colors.subtext
+                }):Play()
+                TweenService:Create(TabButtonStroke, TweenInfo.new(0.2), {
+                    Transparency = 0.8
+                }):Play()
+            end
         end)
+
+        -- Update tab selection logic
+        TabButton.MouseButton1Click:Connect(function()
+            -- Deselect all other tabs
+            for _, button in pairs(TabHolder:GetChildren()) do
+                if button:IsA("TextButton") then
+                    local isThisButton = button == TabButton
+                    local buttonStroke = button:FindFirstChild("UIStroke")
+                    
+                    TweenService:Create(button, TweenInfo.new(0.2), {
+                        BackgroundTransparency = isThisButton and 0.4 or 0.8,
+                        TextColor3 = isThisButton and colors.text or colors.subtext
+                    }):Play()
+                    
+                    if buttonStroke then
+                        TweenService:Create(buttonStroke, TweenInfo.new(0.2), {
+                            Transparency = isThisButton and 0.4 or 0.8,
+                            Color = isThisButton and colors.accent or colors.border
+                        }):Play()
+                    end
+                end
+            end
+            
+            selected = true
+            
+            -- Show corresponding container
+            for _, container in pairs(ContainerHolder:GetChildren()) do
+                container.Visible = container.Name == name.."Container"
+            end
+        end)
+
+        -- Select first tab by default
+        if #TabHolder:GetChildren() == 1 then
+            TabButton.BackgroundTransparency = 0.4
+            TabButton.TextColor3 = colors.text
+            TabButtonStroke.Transparency = 0.4
+            TabButtonStroke.Color = colors.accent
+            selected = true
+            Container.Visible = true
+        end
         
         Container.Name = name.."Container"
         Container.Parent = ContainerHolder
