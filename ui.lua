@@ -131,6 +131,91 @@ function Library.new(title)
             Button.MouseButton1Click:Connect(callback or function() end)
             return Button
         end
+
+        function Tab:AddSlider(text, min, max, default, callback)
+            local SliderFrame = Instance.new("Frame")
+            local SliderLabel = Instance.new("TextLabel")
+            local SliderButton = Instance.new("TextButton")
+            local SliderFill = Instance.new("Frame")
+            local ValueLabel = Instance.new("TextLabel")
+            
+            SliderFrame.Name = text.."Slider"
+            SliderFrame.Parent = TabContent
+            SliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+            SliderFrame.Size = UDim2.new(1, 0, 0, 50)
+            Instance.new("UICorner", SliderFrame).CornerRadius = UDim.new(0, 4)
+            
+            SliderLabel.Name = "Label"
+            SliderLabel.Parent = SliderFrame
+            SliderLabel.BackgroundTransparency = 1
+            SliderLabel.Position = UDim2.new(0, 10, 0, 5)
+            SliderLabel.Size = UDim2.new(1, -20, 0, 20)
+            SliderLabel.Text = text
+            SliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            SliderLabel.TextSize = 14
+            SliderLabel.Font = Enum.Font.GothamSemibold
+            SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
+            
+            SliderButton.Name = "SliderButton"
+            SliderButton.Parent = SliderFrame
+            SliderButton.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
+            SliderButton.Position = UDim2.new(0, 10, 0, 30)
+            SliderButton.Size = UDim2.new(1, -70, 0, 6)
+            Instance.new("UICorner", SliderButton).CornerRadius = UDim.new(0, 3)
+            
+            SliderFill.Name = "Fill"
+            SliderFill.Parent = SliderButton
+            SliderFill.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+            SliderFill.Size = UDim2.new(0.5, 0, 1, 0)
+            Instance.new("UICorner", SliderFill).CornerRadius = UDim.new(0, 3)
+            
+            ValueLabel.Name = "Value"
+            ValueLabel.Parent = SliderFrame
+            ValueLabel.BackgroundTransparency = 1
+            ValueLabel.Position = UDim2.new(1, -50, 0, 25)
+            ValueLabel.Size = UDim2.new(0, 40, 0, 20)
+            ValueLabel.Text = tostring(default)
+            ValueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            ValueLabel.TextSize = 14
+            ValueLabel.Font = Enum.Font.GothamSemibold
+            
+            local value = default
+            local dragging = false
+            
+            local function updateValue(input)
+                local pos = UDim2.new(math.clamp((input.Position.X - SliderButton.AbsolutePosition.X) / SliderButton.AbsoluteSize.X, 0, 1), 0, 1, 0)
+                SliderFill.Size = pos
+                
+                local val = math.floor(min + (max - min) * pos.X.Scale)
+                value = val
+                ValueLabel.Text = tostring(val)
+                
+                if callback then
+                    callback(val)
+                end
+            end
+            
+            SliderButton.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    dragging = true
+                    updateValue(input)
+                end
+            end)
+            
+            game:GetService("UserInputService").InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    dragging = false
+                end
+            end)
+            
+            game:GetService("UserInputService").InputChanged:Connect(function(input)
+                if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                    updateValue(input)
+                end
+            end)
+            
+            return SliderFrame
+        end
         
         return Tab
     end
