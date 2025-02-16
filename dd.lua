@@ -544,80 +544,136 @@ function Library:CreateTab(name)
 		local dropdownFrame = Instance.new("Frame")
 		dropdownFrame.Size = UDim2.new(1, -20, 0, 40)
 		dropdownFrame.Position = UDim2.new(0, 10, 0, #self.Elements * 45)
-		dropdownFrame.BackgroundTransparency = 1
+		dropdownFrame.BackgroundColor3 = Theme.Secondary
+		dropdownFrame.BorderSizePixel = 0
+		CreateRound(dropdownFrame, 8)
 		dropdownFrame.Parent = tab.Container
 
 		local label = Instance.new("TextLabel")
-		label.Size = UDim2.new(0.7, 0, 1, 0)
+		label.Size = UDim2.new(0.5, 0, 1, 0)
+		label.Position = UDim2.new(0.05, 0, 0, 0)
 		label.BackgroundTransparency = 1
 		label.Text = text
 		label.Font = Enum.Font.GothamMedium
-		label.TextSize = 18
+		label.TextSize = 14
+		label.TextXAlignment = Enum.TextXAlignment.Left
 		label.TextColor3 = Theme.TextColor
 		label.Parent = dropdownFrame
 
 		local dropdownButton = Instance.new("TextButton")
-		dropdownButton.Size = UDim2.new(0, 100, 0, 30)
-		dropdownButton.Position = UDim2.new(0.75, 0, 0.2, 0)
-		dropdownButton.BackgroundColor3 = Theme.Secondary
+		dropdownButton.Size = UDim2.new(0.35, 0, 0, 30)
+		dropdownButton.Position = UDim2.new(0.6, 0, 0.5, -15)
+		dropdownButton.BackgroundColor3 = Theme.MainBackground
 		dropdownButton.Text = options[1] or ""
 		dropdownButton.Font = Enum.Font.GothamMedium
-		dropdownButton.TextSize = 18
+		dropdownButton.TextSize = 14
 		dropdownButton.TextColor3 = Theme.TextColor
 		dropdownButton.BorderSizePixel = 0
-		CreateRound(dropdownButton, 8)
+		CreateRound(dropdownButton, 6)
 		dropdownButton.Parent = dropdownFrame
+
+		-- Add arrow indicator
+		local arrow = Instance.new("TextLabel")
+		arrow.Size = UDim2.new(0, 20, 0, 20)
+		arrow.Position = UDim2.new(1, -25, 0.5, -10)
+		arrow.BackgroundTransparency = 1
+		arrow.Text = "▼"
+		arrow.TextColor3 = Theme.TextColor
+		arrow.Font = Enum.Font.GothamBold
+		arrow.TextSize = 12
+		arrow.Parent = dropdownButton
 
 		local isOpen = false
 		local dropdownList = Instance.new("Frame")
-		dropdownList.Size = UDim2.new(0, 100, 0, #options * 30)
-		dropdownList.Position = UDim2.new(0.75, 0, 0.2, 30)
-		dropdownList.BackgroundColor3 = Theme.Secondary
+		dropdownList.Size = UDim2.new(1, 0, 0, #options * 30)
+		dropdownList.Position = UDim2.new(0, 0, 1, 5)
+		dropdownList.BackgroundColor3 = Theme.MainBackground
 		dropdownList.BorderSizePixel = 0
-		CreateRound(dropdownList, 8)
+		dropdownList.ZIndex = 10
+		CreateRound(dropdownList, 6)
 		dropdownList.Visible = false
-		dropdownList.Parent = dropdownFrame
+		dropdownList.Parent = dropdownButton
+
+		-- Add container for options with padding
+		local optionsContainer = Instance.new("Frame")
+		optionsContainer.Size = UDim2.new(1, -10, 1, -10)
+		optionsContainer.Position = UDim2.new(0, 5, 0, 5)
+		optionsContainer.BackgroundTransparency = 1
+		optionsContainer.ZIndex = 10
+		optionsContainer.Parent = dropdownList
 
 		for i, option in ipairs(options) do
 			local optionButton = Instance.new("TextButton")
-			optionButton.Size = UDim2.new(1, 0, 0, 30)
-			optionButton.Position = UDim2.new(0, 0, 0, (i - 1) * 30)
+			optionButton.Size = UDim2.new(1, 0, 0, 25)
+			optionButton.Position = UDim2.new(0, 0, 0, (i - 1) * 27)
 			optionButton.BackgroundColor3 = Theme.Secondary
 			optionButton.Text = option
 			optionButton.Font = Enum.Font.GothamMedium
-			optionButton.TextSize = 18
+			optionButton.TextSize = 14
 			optionButton.TextColor3 = Theme.TextColor
 			optionButton.BorderSizePixel = 0
-			CreateRound(optionButton, 8)
-			optionButton.Parent = dropdownList
+			optionButton.ZIndex = 10
+			CreateRound(optionButton, 6)
+			optionButton.Parent = optionsContainer
+
+			-- Add hover effect
+			optionButton.MouseEnter:Connect(function()
+				Tween(optionButton, {BackgroundColor3 = Theme.Highlight}, 0.2)
+			end)
+
+			optionButton.MouseLeave:Connect(function()
+				Tween(optionButton, {BackgroundColor3 = Theme.Secondary}, 0.2)
+			end)
 
 			optionButton.MouseButton1Click:Connect(function()
 				dropdownButton.Text = option
-				dropdownList.Visible = false
 				isOpen = false
+				dropdownList.Visible = false
+				arrow.Rotation = 0
 				pcall(callback, option)
 			end)
 		end
 
+		-- Add hover effect to main button
+		dropdownButton.MouseEnter:Connect(function()
+			Tween(dropdownButton, {BackgroundColor3 = Theme.Highlight}, 0.2)
+		end)
+
+		dropdownButton.MouseLeave:Connect(function()
+			Tween(dropdownButton, {BackgroundColor3 = Theme.MainBackground}, 0.2)
+		end)
+
 		dropdownButton.MouseButton1Click:Connect(function()
 			isOpen = not isOpen
 			dropdownList.Visible = isOpen
+			Tween(arrow, {Rotation = isOpen and 180 or 0}, 0.2)
 		end)
+
 		table.insert(self.Elements, dropdownFrame)
 	end
 
 	-- Function: Add a simple text element.
 	function tab:AddText(text)
+		local textFrame = Instance.new("Frame")
+		textFrame.Size = UDim2.new(1, -20, 0, 30)
+		textFrame.Position = UDim2.new(0, 10, 0, #self.Elements * 35)
+		textFrame.BackgroundColor3 = Theme.Secondary
+		textFrame.BorderSizePixel = 0
+		CreateRound(textFrame, 8)
+		textFrame.Parent = tab.Container
+
 		local textLabel = Instance.new("TextLabel")
-		textLabel.Size = UDim2.new(1, -20, 0, 30)
-		textLabel.Position = UDim2.new(0, 10, 0, #self.Elements * 35)
+		textLabel.Size = UDim2.new(0.95, 0, 1, 0)
+		textLabel.Position = UDim2.new(0.025, 0, 0, 0)
 		textLabel.BackgroundTransparency = 1
 		textLabel.Text = text
-		textLabel.Font = Enum.Font.Gotham
-		textLabel.TextSize = 18
+		textLabel.Font = Enum.Font.GothamMedium
+		textLabel.TextSize = 14
 		textLabel.TextColor3 = Theme.TextColor
-		textLabel.Parent = tab.Container
-		table.insert(self.Elements, textLabel)
+		textLabel.TextXAlignment = Enum.TextXAlignment.Left
+		textLabel.Parent = textFrame
+
+		table.insert(self.Elements, textFrame)
 	end
 
 	return tab
