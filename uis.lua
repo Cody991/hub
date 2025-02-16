@@ -4,8 +4,19 @@ local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 
+-- Updated color scheme with more refined colors
+local colors = {
+    background = Color3.fromRGB(15, 15, 20),    -- Darker, richer background
+    foreground = Color3.fromRGB(25, 25, 30),    -- Subtle contrast for elements
+    accent = Color3.fromRGB(66, 135, 245),      -- Modern blue accent
+    accent_dark = Color3.fromRGB(48, 110, 215), -- Darker accent for gradients
+    hover = Color3.fromRGB(35, 35, 40),         -- Subtle hover state
+    text = Color3.fromRGB(255, 255, 255),       -- Crisp white text
+    subtext = Color3.fromRGB(180, 180, 190),    -- Softer secondary text
+    border = Color3.fromRGB(40, 40, 45)         -- Subtle borders
+}
+
 function Library.new(title)
-    -- Create loading screen first
     local LoadingGui = Instance.new("ScreenGui")
     local LoadingFrame = Instance.new("Frame")
     local LoadingBar = Instance.new("Frame")
@@ -16,14 +27,14 @@ function Library.new(title)
     
     LoadingFrame.Name = "LoadingFrame"
     LoadingFrame.Parent = LoadingGui
-    LoadingFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    LoadingFrame.BackgroundColor3 = colors.background
     LoadingFrame.Position = UDim2.new(0.5, -150, 0.5, -25)
     LoadingFrame.Size = UDim2.new(0, 300, 0, 50)
     LoadingFrame.BackgroundTransparency = 0
     
     LoadingBar.Name = "LoadingBar"
     LoadingBar.Parent = LoadingFrame
-    LoadingBar.BackgroundColor3 = Color3.fromRGB(45, 120, 255)
+    LoadingBar.BackgroundColor3 = colors.accent
     LoadingBar.Size = UDim2.new(0, 0, 1, 0)
     
     LoadingText.Name = "LoadingText"
@@ -32,7 +43,7 @@ function Library.new(title)
     LoadingText.Size = UDim2.new(1, 0, 1, 0)
     LoadingText.Font = Enum.Font.GothamBold
     LoadingText.Text = "Loading..."
-    LoadingText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    LoadingText.TextColor3 = colors.text
     LoadingText.TextSize = 16
 
     -- Main GUI (initially invisible)
@@ -51,45 +62,54 @@ function Library.new(title)
 
     Main.Name = "Main"
     Main.Parent = ScreenGui
-    Main.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-    Main.Position = UDim2.new(0.5, -250, 0.5, -150)
+    Main.BackgroundColor3 = colors.background
+    Main.Position = UDim2.new(0.5, -300, 0.5, -175)
     Main.Size = UDim2.new(0, 600, 0, 350)
     Main.BackgroundTransparency = 1 -- Start invisible
 
-    UICorner.CornerRadius = UDim.new(0, 5)
+    UICorner.CornerRadius = UDim.new(0, 8) -- Rounder corners
     UICorner.Parent = Main
 
     TopBar.Name = "TopBar"
     TopBar.Parent = Main
-    TopBar.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-    TopBar.Size = UDim2.new(1, 0, 0, 35)
+    TopBar.BackgroundColor3 = colors.accent
+    TopBar.Size = UDim2.new(1, 0, 0, 40)
+
+    local TopBarCorner = Instance.new("UICorner")
+    TopBarCorner.CornerRadius = UDim.new(0, 8)
+    TopBarCorner.Parent = TopBar
 
     Title.Name = "Title"
     Title.Parent = TopBar
     Title.BackgroundTransparency = 1
-    Title.Position = UDim2.new(0, 10, 0, 0)
-    Title.Size = UDim2.new(1, -10, 1, 0)
+    Title.Position = UDim2.new(0, 15, 0, 0)
+    Title.Size = UDim2.new(1, -15, 1, 0)
     Title.Font = Enum.Font.GothamBold
     Title.Text = title
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Title.TextSize = 14
+    Title.TextColor3 = colors.text
+    Title.TextSize = 16
     Title.TextXAlignment = Enum.TextXAlignment.Left
 
     TabHolder.Name = "TabHolder"
     TabHolder.Parent = Main
-    TabHolder.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-    TabHolder.Position = UDim2.new(0, 0, 0, 35)
-    TabHolder.Size = UDim2.new(0, 150, 1, -35)
+    TabHolder.BackgroundColor3 = colors.foreground
+    TabHolder.Position = UDim2.new(0, 10, 0, 50)
+    TabHolder.Size = UDim2.new(0, 150, 1, -60)
+
+    local TabHolderCorner = Instance.new("UICorner")
+    TabHolderCorner.CornerRadius = UDim.new(0, 6)
+    TabHolderCorner.Parent = TabHolder
 
     TabList.Parent = TabHolder
     TabList.SortOrder = Enum.SortOrder.LayoutOrder
-    TabList.Padding = UDim.new(0, 2)
+    TabList.Padding = UDim.new(0, 5)
+    TabList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
     ContainerHolder.Name = "ContainerHolder"
     ContainerHolder.Parent = Main
     ContainerHolder.BackgroundTransparency = 1
-    ContainerHolder.Position = UDim2.new(0, 125, 0, 35)
-    ContainerHolder.Size = UDim2.new(1, -130, 1, -40)
+    ContainerHolder.Position = UDim2.new(0, 170, 0, 50)
+    ContainerHolder.Size = UDim2.new(1, -180, 1, -60)
 
     local Window = {}
     
@@ -102,9 +122,29 @@ function Library.new(title)
     MainShadow.Size = UDim2.new(1, 30, 1, 30)
     MainShadow.Image = "rbxassetid://5028857084"
     MainShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    MainShadow.ImageTransparency = 1
+    MainShadow.ImageTransparency = 0.8
     MainShadow.ScaleType = Enum.ScaleType.Slice
     MainShadow.SliceCenter = Rect.new(24, 24, 276, 276)
+
+    -- Add gradient to top bar
+    local TopBarGradient = Instance.new("UIGradient")
+    TopBarGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, colors.accent),
+        ColorSequenceKeypoint.new(1, colors.accent_dark)
+    })
+    TopBarGradient.Parent = TopBar
+
+    -- Add a subtle glow effect to the TopBar
+    local TopBarGlow = Instance.new("ImageLabel")
+    TopBarGlow.Name = "Glow"
+    TopBarGlow.BackgroundTransparency = 1
+    TopBarGlow.Position = UDim2.new(0, -15, 0, -15)
+    TopBarGlow.Size = UDim2.new(1, 30, 1, 30)
+    TopBarGlow.ZIndex = 0
+    TopBarGlow.Image = "rbxassetid://4996891970"
+    TopBarGlow.ImageColor3 = colors.accent
+    TopBarGlow.ImageTransparency = 0.9
+    TopBarGlow.Parent = TopBar
 
     -- Loading animation sequence
     local function startLoadingSequence()
@@ -119,10 +159,10 @@ function Library.new(title)
         wait(0.5)
         LoadingGui:Destroy()
         
-        -- Fade in main GUI
+        -- Fade in main GUI with bounce effect
         Main.BackgroundTransparency = 0
-        MainShadow.ImageTransparency = 0.5
-        Main:TweenPosition(UDim2.new(0.5, -300, 0.5, -175), "Out", "Back", 0.5, true)
+        MainShadow.ImageTransparency = 0.8
+        Main:TweenPosition(UDim2.new(0.5, -300, 0.5, -175), "Out", "Bounce", 0.8, true)
     end
     
     startLoadingSequence()
@@ -134,21 +174,27 @@ function Library.new(title)
         
         TabButton.Name = name
         TabButton.Parent = TabHolder
-        TabButton.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+        TabButton.BackgroundColor3 = colors.foreground
         TabButton.Size = UDim2.new(1, -10, 0, 35)
         TabButton.Position = UDim2.new(0, 5, 0, 0)
         TabButton.Font = Enum.Font.GothamSemibold
         TabButton.Text = name
-        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TabButton.TextColor3 = colors.subtext
         TabButton.TextSize = 12
         
-        -- Add hover effect
+        -- Enhanced hover effect
         TabButton.MouseEnter:Connect(function()
-            TweenService:Create(TabButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 50)}):Play()
+            TweenService:Create(TabButton, TweenInfo.new(0.2), {
+                BackgroundColor3 = colors.hover,
+                TextColor3 = colors.text
+            }):Play()
         end)
         
         TabButton.MouseLeave:Connect(function()
-            TweenService:Create(TabButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 30, 35)}):Play()
+            TweenService:Create(TabButton, TweenInfo.new(0.2), {
+                BackgroundColor3 = colors.foreground,
+                TextColor3 = colors.subtext
+            }):Play()
         end)
         
         Container.Name = name.."Container"
@@ -165,59 +211,127 @@ function Library.new(title)
         local Tab = {}
         
         function Tab:AddButton(text, callback)
-            local Button = Instance.new("TextButton")
+            local Button = Instance.new("Frame")
+            local ButtonContent = Instance.new("Frame")
+            local ButtonLabel = Instance.new("TextLabel")
+            local ButtonClick = Instance.new("TextButton")
             local UICorner = Instance.new("UICorner")
-            local ButtonEffect = Instance.new("Frame")
-            local UICorner_2 = Instance.new("UICorner")
+            local UIStroke = Instance.new("UIStroke")
+            local ButtonGradient = Instance.new("UIGradient")
             
             Button.Name = text
             Button.Parent = Container
-            Button.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
-            Button.Size = UDim2.new(1, -10, 0, 35)
-            Button.Font = Enum.Font.GothamBold
-            Button.Text = text
-            Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Button.TextSize = 13
+            Button.BackgroundColor3 = colors.foreground
+            Button.Size = UDim2.new(1, -20, 0, 40)
             Button.ClipsDescendants = true
             
-            UICorner.CornerRadius = UDim.new(0, 4)
+            ButtonContent.Name = "ButtonContent"
+            ButtonContent.Parent = Button
+            ButtonContent.BackgroundColor3 = colors.foreground
+            ButtonContent.Size = UDim2.new(1, 0, 1, 0)
+            ButtonContent.ZIndex = 2
+            
+            ButtonLabel.Name = "ButtonLabel"
+            ButtonLabel.Parent = ButtonContent
+            ButtonLabel.BackgroundTransparency = 1
+            ButtonLabel.Size = UDim2.new(1, 0, 1, 0)
+            ButtonLabel.Font = Enum.Font.GothamBold
+            ButtonLabel.Text = text
+            ButtonLabel.TextColor3 = colors.text
+            ButtonLabel.TextSize = 14
+            ButtonLabel.ZIndex = 3
+            
+            ButtonClick.Name = "ButtonClick"
+            ButtonClick.Parent = Button
+            ButtonClick.BackgroundTransparency = 1
+            ButtonClick.Size = UDim2.new(1, 0, 1, 0)
+            ButtonClick.ZIndex = 4
+            ButtonClick.Text = ""
+            
+            UICorner.CornerRadius = UDim.new(0, 8)
             UICorner.Parent = Button
             
-            ButtonEffect.Name = "ButtonEffect"
-            ButtonEffect.Parent = Button
-            ButtonEffect.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            ButtonEffect.BackgroundTransparency = 0.9
-            ButtonEffect.Size = UDim2.new(0, 0, 0, 0)
-            ButtonEffect.Position = UDim2.new(0.5, 0, 0.5, 0)
+            local ContentCorner = UICorner:Clone()
+            ContentCorner.Parent = ButtonContent
             
-            UICorner_2.CornerRadius = UDim.new(1, 0)
-            UICorner_2.Parent = ButtonEffect
+            UIStroke.Color = colors.border
+            UIStroke.Thickness = 1.5
+            UIStroke.Parent = Button
             
-            -- Add hover and click effects
-            Button.MouseEnter:Connect(function()
-                TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 55, 60)}):Play()
+            ButtonGradient.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
+            })
+            ButtonGradient.Rotation = 45
+            ButtonGradient.Parent = ButtonContent
+            
+            -- Enhanced hover and click effects
+            local isHovering = false
+            
+            ButtonClick.MouseEnter:Connect(function()
+                isHovering = true
+                TweenService:Create(ButtonContent, TweenInfo.new(0.2), {
+                    BackgroundColor3 = colors.hover
+                }):Play()
+                TweenService:Create(UIStroke, TweenInfo.new(0.2), {
+                    Color = colors.accent
+                }):Play()
             end)
             
-            Button.MouseLeave:Connect(function()
-                TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 50)}):Play()
+            ButtonClick.MouseLeave:Connect(function()
+                isHovering = false
+                TweenService:Create(ButtonContent, TweenInfo.new(0.2), {
+                    BackgroundColor3 = colors.foreground
+                }):Play()
+                TweenService:Create(UIStroke, TweenInfo.new(0.2), {
+                    Color = colors.border
+                }):Play()
             end)
             
-            Button.MouseButton1Down:Connect(function()
-                local effect = ButtonEffect:Clone()
-                effect.Parent = Button
+            -- Modern click effect with ripple
+            ButtonClick.MouseButton1Down:Connect(function()
+                -- Ripple effect
+                local ripple = Instance.new("Frame")
+                ripple.Name = "Ripple"
+                ripple.Parent = ButtonContent
+                ripple.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                ripple.BackgroundTransparency = 0.6
+                ripple.BorderSizePixel = 0
+                ripple.ZIndex = 2
                 
-                local mx, my = UserInputService:GetMouseLocation()
-                local px, py = Button.AbsolutePosition.X, Button.AbsolutePosition.Y
-                effect.Position = UDim2.new(0, mx - px, 0, my - py)
+                -- Position ripple at mouse position
+                local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+                local relativeX = mouse.X - Button.AbsolutePosition.X
+                local relativeY = mouse.Y - Button.AbsolutePosition.Y
+                ripple.Position = UDim2.new(0, relativeX - 5, 0, relativeY - 5)
+                ripple.Size = UDim2.new(0, 10, 0, 10)
                 
-                local goal = {}
-                goal.Size = UDim2.new(1.5, 0, 1.5, 0)
-                goal.BackgroundTransparency = 1
+                local rippleCorner = Instance.new("UICorner")
+                rippleCorner.CornerRadius = UDim.new(1, 0)
+                rippleCorner.Parent = ripple
                 
-                TweenService:Create(effect, TweenInfo.new(0.5), goal):Play()
-                game.Debris:AddItem(effect, 0.5)
+                -- Animate ripple
+                TweenService:Create(ripple, TweenInfo.new(0.5), {
+                    Size = UDim2.new(2, 0, 2, 0),
+                    Position = UDim2.new(0, relativeX - Button.AbsoluteSize.X, 0, relativeY - Button.AbsoluteSize.Y),
+                    BackgroundTransparency = 1
+                }):Play()
                 
+                -- Scale down effect
+                TweenService:Create(ButtonContent, TweenInfo.new(0.1), {
+                    Size = UDim2.new(0.97, 0, 0.97, 0),
+                    Position = UDim2.new(0.015, 0, 0.015, 0)
+                }):Play()
+                
+                game.Debris:AddItem(ripple, 0.5)
                 callback()
+            end)
+            
+            ButtonClick.MouseButton1Up:Connect(function()
+                TweenService:Create(ButtonContent, TweenInfo.new(0.1), {
+                    Size = UDim2.new(1, 0, 1, 0),
+                    Position = UDim2.new(0, 0, 0, 0)
+                }):Play()
             end)
         end
         
@@ -229,7 +343,7 @@ function Library.new(title)
             
             Toggle.Name = text
             Toggle.Parent = Container
-            Toggle.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+            Toggle.BackgroundColor3 = colors.foreground
             Toggle.Size = UDim2.new(1, -10, 0, 30)
             
             Title.Name = "Title"
@@ -239,13 +353,13 @@ function Library.new(title)
             Title.Size = UDim2.new(1, -50, 1, 0)
             Title.Font = Enum.Font.Gotham
             Title.Text = text
-            Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Title.TextColor3 = colors.text
             Title.TextSize = 12
             Title.TextXAlignment = Enum.TextXAlignment.Left
             
             ToggleButton.Name = "ToggleButton"
             ToggleButton.Parent = Toggle
-            ToggleButton.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+            ToggleButton.BackgroundColor3 = colors.background
             ToggleButton.Position = UDim2.new(1, -40, 0.5, -10)
             ToggleButton.Size = UDim2.new(0, 30, 0, 20)
             
@@ -257,26 +371,11 @@ function Library.new(title)
             
             local toggled = default or false
             
-            -- Update toggle visuals
-            Toggle.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
-            local UICorner = Instance.new("UICorner")
-            UICorner.CornerRadius = UDim.new(0, 4)
-            UICorner.Parent = Toggle
-            
-            ToggleButton.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
-            local UICorner_2 = Instance.new("UICorner")
-            UICorner_2.CornerRadius = UDim.new(1, 0)
-            UICorner_2.Parent = ToggleButton
-            
-            local UICorner_3 = Instance.new("UICorner")
-            UICorner_3.CornerRadius = UDim.new(1, 0)
-            UICorner_3.Parent = Indicator
-            
-            -- Add smooth animation
+            -- Update toggle colors
             local function updateToggle()
                 local pos = toggled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
-                local color = toggled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(255, 255, 255)
-                local buttonColor = toggled and Color3.fromRGB(55, 55, 60) or Color3.fromRGB(45, 45, 50)
+                local color = toggled and colors.accent or colors.text
+                local buttonColor = toggled and colors.hover or colors.background
                 
                 TweenService:Create(Indicator, TweenInfo.new(0.2), {
                     Position = pos,
@@ -306,7 +405,7 @@ function Library.new(title)
             
             HotkeyFrame.Name = text
             HotkeyFrame.Parent = Container
-            HotkeyFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+            HotkeyFrame.BackgroundColor3 = colors.foreground
             HotkeyFrame.Size = UDim2.new(1, -10, 0, 35)
             
             UICorner.CornerRadius = UDim.new(0, 4)
@@ -319,18 +418,18 @@ function Library.new(title)
             Title.Size = UDim2.new(1, -90, 1, 0)
             Title.Font = Enum.Font.GothamMedium
             Title.Text = text
-            Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Title.TextColor3 = colors.text
             Title.TextSize = 13
             Title.TextXAlignment = Enum.TextXAlignment.Left
             
             HotkeyButton.Name = "HotkeyButton"
             HotkeyButton.Parent = HotkeyFrame
-            HotkeyButton.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+            HotkeyButton.BackgroundColor3 = colors.background
             HotkeyButton.Position = UDim2.new(1, -80, 0.5, -12)
             HotkeyButton.Size = UDim2.new(0, 70, 0, 24)
             HotkeyButton.Font = Enum.Font.GothamBold
             HotkeyButton.Text = default and default.Name or "None"
-            HotkeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            HotkeyButton.TextColor3 = colors.text
             HotkeyButton.TextSize = 12
             
             local UICorner_2 = Instance.new("UICorner")
@@ -340,13 +439,17 @@ function Library.new(title)
             local currentKey = default
             local listening = false
             
-            -- Add hover effect
+            -- Enhanced hover effect
             HotkeyButton.MouseEnter:Connect(function()
-                TweenService:Create(HotkeyButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 55, 60)}):Play()
+                TweenService:Create(HotkeyButton, TweenInfo.new(0.2), {
+                    BackgroundColor3 = colors.hover
+                }):Play()
             end)
             
             HotkeyButton.MouseLeave:Connect(function()
-                TweenService:Create(HotkeyButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 50)}):Play()
+                TweenService:Create(HotkeyButton, TweenInfo.new(0.2), {
+                    BackgroundColor3 = colors.background
+                }):Play()
             end)
             
             HotkeyButton.MouseButton1Click:Connect(function()
