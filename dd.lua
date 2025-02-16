@@ -3,10 +3,10 @@ local UserInputService = game:GetService("UserInputService")
 
 -- Theme configuration
 local Theme = {
-	MainBackground = Color3.fromRGB(20, 20, 25),    -- Darker background
+	MainBackground = Color3.fromRGB(15, 15, 20),    -- Darker background
 	Accent = Color3.fromRGB(114, 137, 218),         -- Blurple
-	Secondary = Color3.fromRGB(30, 30, 35),         -- Darker gray
-	Highlight = Color3.fromRGB(40, 40, 45),         -- Slightly lighter gray
+	Secondary = Color3.fromRGB(25, 25, 30),         -- Darker gray
+	Highlight = Color3.fromRGB(35, 35, 40),         -- Slightly lighter gray
 	TextColor = Color3.fromRGB(235, 235, 235)       -- Slightly off-white
 }
 
@@ -132,54 +132,87 @@ function Library.new(title)
 	self.ScreenGui.IgnoreGuiInset = true
 	self.ScreenGui.Parent = game:GetService("CoreGui")
 	
-	-- Main window frame (adjusted for side tabs)
+	-- Main window frame
 	self.MainFrame = Instance.new("Frame")
 	self.MainFrame.Size = UDim2.new(0, 700, 0, 400)
 	self.MainFrame.Position = UDim2.new(0.5, -350, 0.5, -200)
-	self.MainFrame.BackgroundColor3 = Theme.Secondary
+	self.MainFrame.BackgroundColor3 = Theme.MainBackground
 	self.MainFrame.BorderSizePixel = 0
 	CreateRound(self.MainFrame, 12)
 	self.MainFrame.Parent = self.ScreenGui
 	
+	-- Add shadow
+	local shadow = Instance.new("ImageLabel")
+	shadow.Size = UDim2.new(1, 30, 1, 30)
+	shadow.Position = UDim2.new(0, -15, 0, -15)
+	shadow.BackgroundTransparency = 1
+	shadow.Image = "rbxassetid://5554236805"
+	shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+	shadow.ImageTransparency = 0.7
+	shadow.Parent = self.MainFrame
+	
 	-- Title bar with gradient
 	self.TitleBar = Instance.new("Frame")
 	self.TitleBar.Size = UDim2.new(1, 0, 0, 40)
-	self.TitleBar.BackgroundColor3 = Theme.Accent
+	self.TitleBar.BackgroundColor3 = Theme.Secondary
 	self.TitleBar.BorderSizePixel = 0
 	CreateRound(self.TitleBar, 12)
 	self.TitleBar.Parent = self.MainFrame
 	
-	local gradient = Instance.new("UIGradient")
-	gradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Theme.Accent),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(Theme.Accent.R * 0.7, Theme.Accent.G * 0.7, Theme.Accent.B * 0.7))
-	})
-	gradient.Parent = self.TitleBar
-	
 	local titleLabel = Instance.new("TextLabel")
-	titleLabel.Size = UDim2.new(1, -50, 1, 0)
-	titleLabel.Position = UDim2.new(0, 25, 0, 0)
+	titleLabel.Size = UDim2.new(1, -150, 1, 0)
+	titleLabel.Position = UDim2.new(0, 15, 0, 0)
 	titleLabel.BackgroundTransparency = 1
 	titleLabel.Text = self.Title
 	titleLabel.Font = Enum.Font.GothamBold
-	titleLabel.TextSize = 24
+	titleLabel.TextSize = 14
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	titleLabel.TextColor3 = Theme.TextColor
 	titleLabel.Parent = self.TitleBar
-	
-	-- Close button (clicking it hides the UI; can be toggled with RightShift)
-	local closeButton = Instance.new("TextButton")
-	closeButton.Size = UDim2.new(0, 40, 0, 40)
-	closeButton.Position = UDim2.new(1, -40, 0, 0)
-	closeButton.BackgroundTransparency = 1
-	closeButton.Text = "X"
-	closeButton.Font = Enum.Font.GothamBold
-	closeButton.TextSize = 24
-	closeButton.TextColor3 = Theme.TextColor
-	closeButton.Parent = self.TitleBar
-	closeButton.MouseButton1Click:Connect(function()
-		self.MainFrame.Visible = false
+
+	-- Minimize button
+	local minimizeBtn = Instance.new("TextButton")
+	minimizeBtn.Size = UDim2.new(0, 40, 0, 40)
+	minimizeBtn.Position = UDim2.new(1, -80, 0, 0)
+	minimizeBtn.BackgroundTransparency = 1
+	minimizeBtn.Text = "-"
+	minimizeBtn.Font = Enum.Font.GothamBold
+	minimizeBtn.TextSize = 20
+	minimizeBtn.TextColor3 = Theme.TextColor
+	minimizeBtn.Parent = self.TitleBar
+
+	-- Close button
+	local closeBtn = Instance.new("TextButton")
+	closeBtn.Size = UDim2.new(0, 40, 0, 40)
+	closeBtn.Position = UDim2.new(1, -40, 0, 0)
+	closeBtn.BackgroundTransparency = 1
+	closeBtn.Text = "×"
+	closeBtn.Font = Enum.Font.GothamBold
+	closeBtn.TextSize = 20
+	closeBtn.TextColor3 = Theme.TextColor
+	closeBtn.Parent = self.TitleBar
+
+	self.Minimized = false
+	self.OriginalSize = self.MainFrame.Size
+
+	minimizeBtn.MouseButton1Click:Connect(function()
+		self.Minimized = not self.Minimized
+		if self.Minimized then
+			Tween(self.MainFrame, {Size = UDim2.new(0, 700, 0, 40)}, 0.3)
+		else
+			Tween(self.MainFrame, {Size = self.OriginalSize}, 0.3)
+		end
 	end)
-	
+
+	closeBtn.MouseButton1Click:Connect(function()
+		-- Closing animation
+		Tween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.3)
+		Tween(self.MainFrame, {Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.3)
+		Tween(shadow, {ImageTransparency = 1}, 0.3)
+		wait(0.3)
+		self.ScreenGui:Destroy()
+	end)
+
 	-- Tab buttons container (moved to side)
 	self.TabButtons = Instance.new("Frame")
 	self.TabButtons.Size = UDim2.new(0, 150, 1, -40)
@@ -222,17 +255,32 @@ function Library.new(title)
 		end
 	end)
 	
-	-- Global hotkey: Toggle UI visibility (RightShift)
+	-- Global hotkey: Toggle UI visibility (Left Alt)
 	UserInputService.InputBegan:Connect(function(input, gameProcessed)
 		if gameProcessed then return end
-		if input.KeyCode == Enum.KeyCode.RightShift then
-			self.MainFrame.Visible = not self.MainFrame.Visible
+		if input.KeyCode == Enum.KeyCode.LeftAlt then
+			if self.MainFrame.Size == UDim2.new(0, 0, 0, 0) then
+				-- Opening animation
+				self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
+				self.MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+				self.MainFrame.Visible = true
+				Tween(self.MainFrame, {Size = self.OriginalSize}, 0.3)
+				Tween(self.MainFrame, {Position = UDim2.new(0.5, -350, 0.5, -200)}, 0.3)
+				Tween(shadow, {ImageTransparency = 0.7}, 0.3)
+			else
+				-- Closing animation
+				Tween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.3)
+				Tween(self.MainFrame, {Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.3)
+				Tween(shadow, {ImageTransparency = 1}, 0.3)
+				wait(0.3)
+				self.MainFrame.Visible = false
+			end
 		end
 	end)
 	
 	-- Always create a Settings tab that includes info about the toggle hotkey.
 	local settingsTab = self:CreateTab("Settings")
-	settingsTab:AddText("Toggle UI Visibility: RightShift")
+	settingsTab:AddText("Toggle UI Visibility: LeftAlt")
 	
 	return self
 end
