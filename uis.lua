@@ -177,14 +177,15 @@ function Library.new(title)
         TabButton.Name = name
         TabButton.Parent = TabHolder
         TabButton.BackgroundColor3 = colors.background
-        TabButton.BackgroundTransparency = 0.8  -- More transparent by default
-        TabButton.Size = UDim2.new(1, -16, 0, 32)  -- Slightly smaller
-        TabButton.Position = UDim2.new(0, 8, 0, 0)  -- Centered
+        TabButton.BackgroundTransparency = 0.8
+        TabButton.Size = UDim2.new(1, -16, 0, 32)
+        TabButton.Position = UDim2.new(0, 8, 0, 0)
         TabButton.Font = Enum.Font.GothamSemibold
         TabButton.Text = name
         TabButton.TextColor3 = colors.subtext
         TabButton.TextSize = 13
-        TabButton.AutoButtonColor = false  -- Disable default button effect
+        TabButton.AutoButtonColor = false
+        TabButton.LayoutOrder = #TabHolder:GetChildren()
 
         -- Add rounded corners to tab buttons
         local TabButtonCorner = Instance.new("UICorner")
@@ -197,6 +198,21 @@ function Library.new(title)
         TabButtonStroke.Transparency = 0.8
         TabButtonStroke.Thickness = 1
         TabButtonStroke.Parent = TabButton
+
+        Container.Name = name.."Container"
+        Container.Parent = ContainerHolder
+        Container.BackgroundTransparency = 1
+        Container.Size = UDim2.new(1, 0, 1, 0)
+        Container.ScrollBarThickness = 2
+        Container.Visible = false
+        Container.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        Container.CanvasSize = UDim2.new(0, 0, 0, 0)
+        Container.Position = UDim2.new(0, 0, 0, 0)
+
+        ItemList.Parent = Container
+        ItemList.SortOrder = Enum.SortOrder.LayoutOrder
+        ItemList.Padding = UDim.new(0, 8)
+        ItemList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
         -- Enhanced hover and selection effects
         local selected = false
@@ -225,13 +241,13 @@ function Library.new(title)
             end
         end)
 
-        -- Update tab selection logic
         TabButton.MouseButton1Click:Connect(function()
             -- Deselect all other tabs
             for _, button in pairs(TabHolder:GetChildren()) do
                 if button:IsA("TextButton") then
                     local isThisButton = button == TabButton
                     local buttonStroke = button:FindFirstChild("UIStroke")
+                    selected = isThisButton  -- Update selected state
                     
                     TweenService:Create(button, TweenInfo.new(0.2), {
                         BackgroundTransparency = isThisButton and 0.4 or 0.8,
@@ -246,17 +262,17 @@ function Library.new(title)
                     end
                 end
             end
-            
-            selected = true
-            
+
             -- Show corresponding container
             for _, container in pairs(ContainerHolder:GetChildren()) do
-                container.Visible = container.Name == name.."Container"
+                if container:IsA("ScrollingFrame") then  -- Add this check
+                    container.Visible = container.Name == name.."Container"
+                end
             end
         end)
 
         -- Select first tab by default
-        if #TabHolder:GetChildren() == 1 then
+        if #TabHolder:GetChildren() <= 2 then  -- Changed this condition
             TabButton.BackgroundTransparency = 0.4
             TabButton.TextColor3 = colors.text
             TabButtonStroke.Transparency = 0.4
@@ -264,22 +280,7 @@ function Library.new(title)
             selected = true
             Container.Visible = true
         end
-        
-        Container.Name = name.."Container"
-        Container.Parent = ContainerHolder
-        Container.BackgroundTransparency = 1
-        Container.Size = UDim2.new(1, 0, 1, 0)
-        Container.ScrollBarThickness = 2
-        Container.Visible = false
-        Container.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        Container.CanvasSize = UDim2.new(0, 0, 0, 0)
-        Container.Position = UDim2.new(0, 0, 0, 0)
-        
-        ItemList.Parent = Container
-        ItemList.SortOrder = Enum.SortOrder.LayoutOrder
-        ItemList.Padding = UDim.new(0, 8)
-        ItemList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-        
+
         local Tab = {}
         
         function Tab:AddButton(text, callback)
@@ -573,16 +574,6 @@ function Library.new(title)
                     return currentKey
                 end
             }
-        end
-        
-        TabButton.MouseButton1Click:Connect(function()
-            for _, container in pairs(ContainerHolder:GetChildren()) do
-                container.Visible = container.Name == name.."Container"
-            end
-        end)
-        
-        if #TabHolder:GetChildren() == 1 then
-            Container.Visible = true
         end
         
         return Tab
