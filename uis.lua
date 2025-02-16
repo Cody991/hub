@@ -186,7 +186,7 @@ function Library.new(title)
         TabButton.TextSize = 13
         TabButton.AutoButtonColor = false
         TabButton.LayoutOrder = #TabHolder:GetChildren()
-
+        
         -- Add rounded corners to tab buttons
         local TabButtonCorner = Instance.new("UICorner")
         TabButtonCorner.CornerRadius = UDim.new(0, 6)
@@ -265,14 +265,20 @@ function Library.new(title)
 
             -- Show corresponding container
             for _, container in pairs(ContainerHolder:GetChildren()) do
-                if container:IsA("ScrollingFrame") then  -- Add this check
+                if container:IsA("ScrollingFrame") then
                     container.Visible = container.Name == name.."Container"
                 end
             end
         end)
 
-        -- Select first tab by default
-        if #TabHolder:GetChildren() <= 2 then  -- Changed this condition
+        -- Select first tab by default (only count TextButtons)
+        local tabCount = 0
+        for _, child in ipairs(TabHolder:GetChildren()) do
+            if child:IsA("TextButton") then
+                tabCount = tabCount + 1
+            end
+        end
+        if tabCount == 1 then
             TabButton.BackgroundTransparency = 0.4
             TabButton.TextColor3 = colors.text
             TabButtonStroke.Transparency = 0.4
@@ -364,7 +370,6 @@ function Library.new(title)
             
             -- Modern click effect with ripple
             ButtonClick.MouseButton1Down:Connect(function()
-                -- Ripple effect
                 local ripple = Instance.new("Frame")
                 ripple.Name = "Ripple"
                 ripple.Parent = ButtonContent
@@ -373,7 +378,6 @@ function Library.new(title)
                 ripple.BorderSizePixel = 0
                 ripple.ZIndex = 2
                 
-                -- Position ripple at mouse position
                 local mouse = game:GetService("Players").LocalPlayer:GetMouse()
                 local relativeX = mouse.X - Button.AbsolutePosition.X
                 local relativeY = mouse.Y - Button.AbsolutePosition.Y
@@ -384,14 +388,12 @@ function Library.new(title)
                 rippleCorner.CornerRadius = UDim.new(1, 0)
                 rippleCorner.Parent = ripple
                 
-                -- Animate ripple
                 TweenService:Create(ripple, TweenInfo.new(0.5), {
                     Size = UDim2.new(2, 0, 2, 0),
                     Position = UDim2.new(0, relativeX - Button.AbsoluteSize.X, 0, relativeY - Button.AbsoluteSize.Y),
                     BackgroundTransparency = 1
                 }):Play()
                 
-                -- Scale down effect
                 TweenService:Create(ButtonContent, TweenInfo.new(0.1), {
                     Size = UDim2.new(0.97, 0, 0.97, 0),
                     Position = UDim2.new(0.015, 0, 0.015, 0)
@@ -458,7 +460,6 @@ function Library.new(title)
             
             local toggled = default or false
             
-            -- Update toggle colors
             local function updateToggle()
                 local pos = toggled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
                 local color = toggled and colors.accent or colors.text
@@ -526,7 +527,6 @@ function Library.new(title)
             local currentKey = default
             local listening = false
             
-            -- Enhanced hover effect
             HotkeyButton.MouseEnter:Connect(function()
                 TweenService:Create(HotkeyButton, TweenInfo.new(0.2), {
                     BackgroundColor3 = colors.hover
@@ -556,7 +556,6 @@ function Library.new(title)
                 end)
             end)
             
-            -- Listen for hotkey press
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.Keyboard 
                     and input.KeyCode == currentKey 
