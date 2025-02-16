@@ -320,48 +320,13 @@ function Library:CreateTab(name)
 		btn.TextColor3 = Theme.TextColor
 		btn.Parent = btnContainer
 		
-		-- Add modern gradient
-		local gradient = Instance.new("UIGradient")
-		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
-		})
-		gradient.Rotation = 45
-		gradient.Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 0.95),
-			NumberSequenceKeypoint.new(1, 0.97)
-		})
-		gradient.Parent = btnContainer
-		
-		-- Add subtle glow effect
-		local glow = Instance.new("ImageLabel")
-		glow.Size = UDim2.new(1, 20, 1, 20)
-		glow.Position = UDim2.new(0, -10, 0, -10)
-		glow.BackgroundTransparency = 1
-		glow.Image = "rbxassetid://5554236805"
-		glow.ImageColor3 = Theme.Accent
-		glow.ImageTransparency = 0.9
-		glow.Parent = btnContainer
-		
-		-- Enhanced hover and click effects
+		-- Add hover effect
 		btnContainer.MouseEnter:Connect(function()
 			Tween(btnContainer, {BackgroundColor3 = Theme.Highlight}, 0.2)
-			Tween(glow, {ImageTransparency = 0.8}, 0.2)
 		end)
 		
 		btnContainer.MouseLeave:Connect(function()
 			Tween(btnContainer, {BackgroundColor3 = Theme.Secondary}, 0.2)
-			Tween(glow, {ImageTransparency = 0.9}, 0.2)
-		end)
-		
-		btn.MouseButton1Down:Connect(function()
-			Tween(btnContainer, {BackgroundColor3 = Theme.Accent}, 0.1)
-			Tween(glow, {ImageTransparency = 0.7}, 0.1)
-		end)
-		
-		btn.MouseButton1Up:Connect(function()
-			Tween(btnContainer, {BackgroundColor3 = Theme.Highlight}, 0.1)
-			Tween(glow, {ImageTransparency = 0.8}, 0.1)
 		end)
 		
 		btn.MouseButton1Click:Connect(function()
