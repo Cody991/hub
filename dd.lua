@@ -280,9 +280,6 @@ function Library.new(title)
 		end
 	end)
 	
-	-- Always create a Settings tab that includes info about the toggle hotkey.
-	local settingsTab = self:CreateTab("Settings")
-	settingsTab:AddText("Toggle UI Visibility: LeftAlt")
 	
 	minimizeBtn.MouseButton1Click:Connect(function()
 		self.Minimized = not self.Minimized
